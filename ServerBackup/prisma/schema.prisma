@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model usuario {
+  id           String        @id @default(uuid())
+  nome         String
+  email        String        @unique
+  telefone     String        @unique
+  fotoperfil   String?
+  senha        String
+  propriedades propriedade[]
+  planos       PlanosMercadoPago[]
+}
+
+model propriedade {
+  id              String       @id @default(uuid())
+  nomepropriedade String
+  localizacao     String?
+  usuarioId       String
+  area_ha         Int?         @map("area_ha")
+  financeiros     financeiro[]
+  producoes       producao[]
+  usuario         usuario      @relation(fields: [usuarioId], references: [id])
+
+  @@map("propriedade")
+}
+
+model producao {
+  id            Int         @id @default(autoincrement())
+  safra         String
+  areaproducao  Float
+  data          DateTime
+  cultura       String
+  produtividade Float
+  propriedadeId String
+  propriedade   propriedade @relation(fields: [propriedadeId], references: [id])
+
+  @@map("producao")
+}
+
+model financeiro {
+  id            Int         @id @default(autoincrement())
+  descricao     String
+  valor         Float
+  data          DateTime
+  tipo          String
+  propriedadeId String
+  propriedade   propriedade @relation(fields: [propriedadeId], references: [id])
+
+  @@map("financeiro")
+
+}
+
+model PlanosMercadoPago {
+  id              String       @id @default(uuid())
+  status          String // Pendente - Pago/Ativo - Atrasado - Cancelado - Expirado
+  tipo            String // Semanal - Mensal - Trimestral - Semestral - Anual
+  valor           Float
+  dataAssinatura  DateTime @default(now())
+  metodoPagamento String // Pix - Boleto - Cartão Crédito/Débito
+  usuarioId       String
+  idAssinaturaExterna String? @unique
+  usuario         usuario  @relation(fields: [usuarioId], references: [id])
+
+  @@map("planos_mercado_pago")
+}
