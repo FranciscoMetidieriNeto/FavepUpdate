@@ -1,74 +1,96 @@
-<section>
-  <h2 id="assinatura">Escolha o melhor plano para você</h2>
+<section class="pricing-table-section">
+  <div class="pricing-header">
+    <h2>Compare nossos planos e escolha o ideal para você</h2>
+    <p>Todos os planos são projetados para o seu sucesso. Encontre o que melhor se adapta à sua necessidade.</p>
+  </div>
 
-  <div class="plans-container">
-
-    <div class="plan-card">
-      <h3>Plano Semanal</h3>
-      <span class="price">R$ 500,00</span>
-      <span class="period">/semana</span>
-      <ul>
-        <li>Acesso completo à plataforma</li>
-        <li>Planilhas de gerenciamento</li>
-        <li>Estatísticas detalhadas</li>
-        <li>Relatórios personalizados</li>
-      </ul>
-      <button class="btn-assinar">Assinar Agora</button>
-    </div>
-
-    <div class="plan-card">
-      <h3>Plano Mensal</h3>
-      <span class="price">R$ 2.000,00</span>
-      <span class="period">/mês</span>
-      <ul>
-        <li>Acesso completo à plataforma</li>
-        <li>Planilhas de gerenciamento</li>
-        <li>Estatísticas detalhadas</li>
-        <li>Relatórios personalizados</li>
-        <li>Suporte prioritário</li>
-      </ul>
-      <button class="btn-assinar">Assinar Agora</button>
-    </div>
-
-    <div class="plan-card featured"> <h3>Plano Trimestral</h3>
-      <span class="price">R$ 5.400,00</span>
-      <span class="period">/3 meses (economize 10%)</span>
-      <ul>
-        <li>Acesso completo à plataforma</li>
-        <li>Planilhas de gerenciamento</li>
-        <li>Estatísticas detalhadas</li>
-        <li>Relatórios personalizados</li>
-        <li>Suporte prioritário</li>
-      </ul>
-      <button class="btn-assinar">Assinar Agora</button>
-    </div>
-
-    <div class="plan-card">
-      <h3>Plano Semestral</h3>
-      <span class="price">R$ 9.900,00</span>
-      <span class="period">/6 meses (economize 17%)</span>
-      <ul>
-        <li>Acesso completo à plataforma</li>
-        <li>Planilhas de gerenciamento</li>
-        <li>Estatísticas detalhadas</li>
-        <li>Relatórios personalizados</li>
-        <li>Suporte prioritário</li>
-      </ul>
-      <button class="btn-assinar">Assinar Agora</button>
-    </div>
-
-    <div class="plan-card">
-      <h3>Plano Anual</h3>
-      <span class="price">R$ 16.800,00</span>
-      <span class="period">/12 meses (economize 30%)</span>
-      <ul>
-        <li>Acesso completo à plataforma</li>
-        <li>Planilhas de gerenciamento</li>
-        <li>Estatísticas detalhadas</li>
-        <li>Relatórios personalizados</li>
-        <li>Suporte 24/7</li>
-      </ul>
-      <button class="btn-assinar">Assinar Agora</button>
-    </div>
-
-  </div> </section>
+  <div class="table-container">
+    <table class="pricing-table">
+            <thead>
+        <tr>
+          <th class="feature-header">Recursos</th>
+          <th>
+            <h3>Semanal</h3>
+            <div class="price">Free</div>
+            <span class="period">por semana</span>
+            <button class="btn-assinar" (click)="handleFreeSubscription()">Assinar Agora</button>
+          </th>
+          <th>
+            <h3>Mensal</h3>
+            <div class="price">R$ 2.000,00</div>
+            <span class="period">por mês</span>
+            <button class="btn-assinar" (click)="handleSubscription({ tipo: 'Mensal', valor: 2000 }, $event)">Assinar Agora</button>
+          </th>
+          <th>
+            <h3>Trimestral</h3>
+            <div class="price">R$ 5.400,00</div>
+            <span class="period">/mês</span>
+            <button class="btn-assinar" (click)="handleSubscription({ tipo: 'Trimestral', valor: 5400 }, $event)">Assinar Agora</button>
+          </th>
+          <th>
+            <h3>Semestral</h3>
+            <div class="price">R$ 9.900,00</div>
+            <span class="period">/mês</span>
+            <button class="btn-assinar" (click)="handleSubscription({ tipo: 'Semestral', valor: 9900 }, $event)">Assinar Agora</button>
+          </th>
+          <th>
+            <h3>Anual</h3>
+            <div class="price">R$ 16.800,00</div>
+            <span class="period">/mês</span>
+            <button class="btn-assinar" (click)="handleSubscription({ tipo: 'Anual', valor: 16800 }, $event)">Assinar Agora</button>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="feature-name">Acesso completo à plataforma</td>
+          <td><i class="fas fa-check check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td class="featured"><i class="fas fa-check check"></i></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Planilhas de gerenciamento</td>
+          <td><i class="fas fa-check check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td class="featured"><i class="fas fa-check check"></i></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Estatísticas detalhadas</td>
+          <td><i class="fas fa-check check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td class="featured"><i class="fas fa-check check"></i></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Relatórios personalizados</td>
+          <td><i class="fas fa-check check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td class="featured"><i class="fas fa-check check"></i></td>
+        </tr>
+         <tr>
+          <td class="feature-name">Suporte prioritário</td>
+          <td><i class="fas fa-minus no-check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td class="featured"><i class="fas fa-check check"></i></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Suporte 24/7</td>
+          <td><i class="fas fa-minus no-check"></i></td>
+          <td><i class="fas fa-minus no-check"></i></td>
+          <td><i class="fas fa-minus no-check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td class="featured"><i class="fas fa-rocket check premium-feature"></i></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>

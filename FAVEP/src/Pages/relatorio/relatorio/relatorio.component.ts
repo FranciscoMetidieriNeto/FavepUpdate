@@ -1,16 +1,21 @@
+// ARQUIVO: src/app/components/relatorio/relatorio.component.ts
+
 import { Component, HostListener, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Chart, registerables } from 'chart.js';
+import { Chart, registerables, ChartType } from 'chart.js';
 import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
 import { Subscription } from 'rxjs';
 
-// --- SERVIÇOS ---
+// NOVOS IMPORTS PARA O PDF
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+
+// --- SERVIÇOS E MODELOS ---
 import { DashboardDataService } from '../../../services/dashboard-data.service';
 import { AuthService } from '../../../services/auth.service';
-// CORREÇÃO: Importa 'Financeiro' em vez de 'Movimentacao'
 import { Usuario, Propriedade, Producao, Financeiro } from '../../../models/api.models';
 
 registerLocaleData(localePt);
@@ -25,36 +30,29 @@ registerLocaleData(localePt);
   ],
   providers: [DatePipe],
   templateUrl: './relatorio.component.html',
-  styleUrl: './relatorio.component.css'
+  styleUrls: ['./relatorio.component.css']
 })
 export class RelatorioComponent implements OnInit, OnDestroy {
-
+  // ... (propriedades do componente como antes)
   menuAberto = false;
   usuarioNome: string = '';
   usuarioFoto: string = 'https://placehold.co/40x40/aabbcc/ffffff?text=User';
-
   propriedades: Propriedade[] = [];
   producoes: Producao[] = [];
-  // CORREÇÃO: Usa o tipo 'Financeiro'
   movimentacoes: Financeiro[] = [];
-
   selectedPropertyId: string = 'todos';
   startDate: string = '';
   endDate: string = '';
   selectedCropType: string = 'todos';
   reportType: 'productivity' | 'financial' | 'crop_production' = 'productivity';
-
-  availableCropTypes: { value: string, text: string }[] = [{ value: 'todos', text: 'Todas as Culturas' }];
-
+  availableCropTypes: { value: string, text: string }[] = [];
   @ViewChild('reportChartCanvas', { static: true }) reportChartCanvas!: ElementRef<HTMLCanvasElement>;
   reportChart: Chart | null = null;
-
   private userSubscription: Subscription | undefined;
 
   constructor(
     private dashboardDataService: DashboardDataService,
-    private authService: AuthService,
-    private datePipe: DatePipe
+    private authService: AuthService
   ) {
     Chart.register(...registerables);
   }
@@ -70,9 +68,7 @@ export class RelatorioComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.userSubscription) {
-      this.userSubscription.unsubscribe();
-    }
+    this.userSubscription?.unsubscribe();
   }
 
   carregarDadosIniciais(): void {
@@ -81,161 +77,189 @@ export class RelatorioComponent implements OnInit, OnDestroy {
         const { propriedades, producoes, movimentacoes } = data;
         this.propriedades = propriedades;
         this.producoes = producoes;
-        // CORREÇÃO: Atribui os dados ao array de 'Financeiro' e garante que a data seja um objeto Date
         this.movimentacoes = movimentacoes.map(rec => ({ ...rec, data: new Date(rec.data) }));
-
         const uniqueCropTypes = new Set<string>(this.producoes.map(prod => prod.cultura));
-        this.availableCropTypes = [{ value: 'todos', text: 'Todas as Culturas' }];
+        this.availableCropTypes = [];
         Array.from(uniqueCropTypes).sort().forEach(type => {
           this.availableCropTypes.push({ value: type, text: type });
         });
-
         this.gerarRelatorio();
       },
-      error: (err) => {
-        console.error('Erro ao carregar dados iniciais para o relatório:', err);
-      }
+      error: (err) => console.error('Erro ao carregar dados iniciais para o relatório:', err)
     });
   }
 
-  gerarRelatorio(): void {
-    if (this.reportChart) {
-      this.reportChart.destroy();
-      this.reportChart = null;
+  onReportTypeChange(): void {
+    if (this.reportType !== 'financial') {
+      this.startDate = '';
+      this.endDate = '';
     }
+    if (this.reportType === 'financial') {
+      this.selectedCropType = 'todos';
+    }
+    this.gerarRelatorio();
+  }
 
+  gerarRelatorio(): void {
+    this.reportChart?.destroy();
     const ctx = this.reportChartCanvas.nativeElement.getContext('2d');
-    if (!ctx) {
-      console.error('Contexto 2D do canvas não pôde ser obtido!');
-      return;
-    }
+    if (!ctx) return;
+
+    // ... (lógica de filtragem como antes)
+    const filteredProducoes = this.producoes.filter(prod => (this.selectedPropertyId === 'todos' || prod.propriedadeId === this.selectedPropertyId) && (this.selectedCropType === 'todos' || prod.cultura === this.selectedCropType));
+    const filteredMovimentacoes = this.movimentacoes.filter(mov => (this.selectedPropertyId === 'todos' || mov.propriedadeId === this.selectedPropertyId) && (!this.startDate || mov.data >= new Date(this.startDate)) && (!this.endDate || mov.data <= new Date(this.endDate)));
 
     let labels: string[] = [];
     let datasets: any[] = [];
     let chartTitle: string = '';
-    let chartType: 'bar' | 'line' | 'pie' = 'bar';
-
-    const filteredProducoes = this.producoes.filter(prod => {
-      // CORREÇÃO: Comparando 'prod.propriedadeId' com 'selectedPropertyId'
-      const isPropertyMatch = this.selectedPropertyId === 'todos' || prod.propriedadeId === this.selectedPropertyId;
-      const isCropTypeMatch = this.selectedCropType === 'todos' || prod.cultura === this.selectedCropType;
-      const isDateRangeMatch = (!this.startDate || new Date(prod.data) >= new Date(this.startDate)) &&
-                                 (!this.endDate || new Date(prod.data) <= new Date(this.endDate));
-      return isPropertyMatch && isCropTypeMatch && isDateRangeMatch;
-    });
-
-    const filteredMovimentacoes = this.movimentacoes.filter(mov => {
-      // CORREÇÃO: Comparando 'mov.propriedadeId' com 'selectedPropertyId'
-      const isPropertyMatch = this.selectedPropertyId === 'todos' || mov.propriedadeId === this.selectedPropertyId;
-      const isDateRangeMatch = (!this.startDate || mov.data >= new Date(this.startDate)) &&
-                                 (!this.endDate || mov.data <= new Date(this.endDate));
-      return isPropertyMatch && isDateRangeMatch;
-    });
+    let chartType: ChartType = 'bar';
 
     switch (this.reportType) {
       case 'productivity':
+        // ... (lógica de produtividade como antes)
         chartTitle = 'Produtividade por Cultura (kg/ha)';
-        chartType = 'bar';
-        const productivityData: { [key: string]: { totalYield: number, totalArea: number } } = {};
+        const productivityData = new Map<string, { totalYield: number, properties: Set<string> }>();
         filteredProducoes.forEach(prod => {
-          if (!productivityData[prod.cultura]) {
-            productivityData[prod.cultura] = { totalYield: 0, totalArea: 0 };
+          if (!productivityData.has(prod.cultura)) {
+            productivityData.set(prod.cultura, { totalYield: 0, properties: new Set() });
           }
-          productivityData[prod.cultura].totalYield += (prod.produtividade || 0);
-          // CORREÇÃO: Buscando a área da propriedade pelo 'propriedadeId' e usando 'area_ha'
-          const propArea = this.propriedades.find(p => p.id === prod.propriedadeId)?.area_ha || 0;
-          productivityData[prod.cultura].totalArea += propArea;
+          const data = productivityData.get(prod.cultura)!;
+          data.totalYield += (prod.produtividade || 0);
+          data.properties.add(prod.propriedadeId);
         });
-        labels = Object.keys(productivityData).sort();
+        labels = Array.from(productivityData.keys()).sort();
         const productivityValues = labels.map(label => {
-          const item = productivityData[label];
-          return item.totalArea > 0 ? item.totalYield / item.totalArea : 0;
+          const item = productivityData.get(label)!;
+          const totalArea = Array.from(item.properties).reduce((sum, propId) => {
+            const prop = this.propriedades.find(p => p.id === propId);
+            return sum + (prop?.area_ha || 0);
+          }, 0);
+          return totalArea > 0 ? item.totalYield / totalArea : 0;
         });
-        datasets = [{
-          label: 'Produtividade (kg/ha)',
-          data: productivityValues,
-          backgroundColor: 'rgba(75, 192, 192, 0.6)',
-        }];
+        datasets = [{ label: 'Produtividade (kg/ha)', data: productivityValues, backgroundColor: 'rgba(75, 192, 192, 0.6)' }];
         break;
 
       case 'financial':
-        chartTitle = 'Composição Financeira';
-        chartType = 'pie';
+        // LÓGICA REVERTIDA PARA GRÁFICO DE BARRAS
+        chartTitle = 'Resultado Financeiro';
+        chartType = 'bar';
         const totalRevenue = filteredMovimentacoes.filter(r => r.tipo === 'receita').reduce((sum, r) => sum + r.valor, 0);
         const totalExpense = filteredMovimentacoes.filter(r => r.tipo === 'despesa').reduce((sum, r) => sum + r.valor, 0);
-        labels = ['Receitas', 'Despesas'];
+        labels = ['Receitas', 'Despesas', 'Lucro/Prejuízo'];
         datasets = [{
           label: 'Valor (R$)',
-          data: [totalRevenue, totalExpense],
-          backgroundColor: [
-            'rgba(40, 167, 69, 0.7)',
-            'rgba(220, 53, 69, 0.7)'
-          ],
-          borderColor: [
-            'rgba(40, 167, 69, 1)',
-            'rgba(220, 53, 69, 1)'
-          ],
-          borderWidth: 1
+          data: [totalRevenue, totalExpense, totalRevenue - totalExpense],
+          backgroundColor: ['rgba(40, 167, 69, 0.7)', 'rgba(220, 53, 69, 0.7)', 'rgba(0, 123, 255, 0.7)'],
         }];
         break;
 
       case 'crop_production':
+        // ... (lógica de produção por cultura como antes)
         chartTitle = 'Produção Total por Cultura (kg)';
-        chartType = 'bar';
-        const cropProductionData: { [key: string]: number } = {};
+        const cropProductionData = new Map<string, number>();
         filteredProducoes.forEach(prod => {
-          if (!cropProductionData[prod.cultura]) {
-            cropProductionData[prod.cultura] = 0;
-          }
-          cropProductionData[prod.cultura] += (prod.produtividade || 0);
+          const currentYield = cropProductionData.get(prod.cultura) || 0;
+          cropProductionData.set(prod.cultura, currentYield + (prod.produtividade || 0));
         });
-        labels = Object.keys(cropProductionData).sort();
-        const productionValues = labels.map(label => cropProductionData[label]);
-        datasets = [{
-          label: 'Produção (kg)',
-          data: productionValues,
-          backgroundColor: 'rgba(153, 102, 255, 0.6)',
-        }];
+        labels = Array.from(cropProductionData.keys()).sort();
+        datasets = [{ label: 'Produção (kg)', data: labels.map(label => cropProductionData.get(label)), backgroundColor: 'rgba(153, 102, 255, 0.6)' }];
         break;
     }
 
     this.reportChart = new Chart(ctx, {
       type: chartType,
-      data: {
-        labels: labels,
-        datasets: datasets
-      },
+      data: { labels, datasets },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          title: { display: true, text: chartTitle, font: { size: 16 } },
-          legend: {
-            display: datasets.length > 1 || chartType === 'pie',
-            position: 'top',
+          title: { display: true, text: chartTitle, font: { size: 18 } },
+          legend: { display: true, position: 'top' },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                let label = context.dataset.label || '';
+                if (label) { label += ': '; }
+                if (context.parsed.y !== null) {
+                  const value = context.parsed.y;
+                  if (this.reportType === 'financial') {
+                    label += new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+                  } else {
+                    label += new Intl.NumberFormat('pt-BR').format(value) + (this.reportType === 'productivity' ? ' kg/ha' : ' kg');
+                  }
+                }
+                return label;
+              }
+            }
           }
         },
-        scales: chartType !== 'pie' ? {
+        // CORREÇÃO: Como todos os gráficos são de barra, a verificação 'chartType !== "pie"' foi removida
+        scales: {
           y: {
             beginAtZero: true,
             title: { display: true, text: this.getAxisYTitle(this.reportType) },
             ticks: {
-              callback: (value: any) => {
-                if (this.reportType === 'financial') {
-                  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
-                }
-                return new Intl.NumberFormat('pt-BR').format(value);
-              }
+              callback: (value: any) => typeof value === 'number' ? new Intl.NumberFormat('pt-BR', { style: this.reportType === 'financial' ? 'currency' : 'decimal', currency: 'BRL' }).format(value) : value
             }
           },
           x: {
             title: { display: true, text: this.getAxisXTitle(this.reportType) }
           }
-        } : {}
+        }
       }
     });
   }
 
+  // NOVO MÉTODO PARA EXPORTAR PDF
+  async exportarRelatorioPDF(): Promise<void> {
+    const reportContent = document.getElementById('report-content');
+    if (!reportContent) {
+      console.error("Elemento 'report-content' não encontrado para exportar o PDF.");
+      return;
+    }
+
+    // Adiciona uma classe para indicar que estamos gerando o PDF (útil para estilização)
+    document.body.classList.add('generating-pdf');
+    
+    // Usa html2canvas para capturar o conteúdo como uma imagem
+    const canvas = await html2canvas(reportContent, {
+      scale: 2, // Aumenta a resolução da imagem para melhor qualidade no PDF
+      useCORS: true,
+      backgroundColor: '#ffffff' // Define um fundo branco para evitar transparências
+    });
+
+    // Remove a classe após a captura
+    document.body.classList.remove('generating-pdf');
+
+    const imgData = canvas.toDataURL('image/png');
+    
+    // Define as dimensões do PDF (A4 paisagem)
+    const pdf = new jsPDF('l', 'mm', 'a4'); // l = landscape (paisagem)
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    
+    const imgWidth = canvas.width;
+    const imgHeight = canvas.height;
+    
+    // Calcula a proporção para a imagem caber na página
+    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+    const finalImgWidth = imgWidth * ratio;
+    const finalImgHeight = imgHeight * ratio;
+    
+    // Centraliza a imagem na página
+    const x = (pdfWidth - finalImgWidth) / 2;
+    const y = (pdfHeight - finalImgHeight) / 2;
+
+    pdf.addImage(imgData, 'PNG', x, y, finalImgWidth, finalImgHeight);
+
+    // Gera o nome do arquivo dinamicamente
+    const dataAtual = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
+    const nomeArquivo = `Relatorio_FAVEP_${dataAtual}.pdf`;
+    
+    pdf.save(nomeArquivo);
+  }
+
+  // ... (métodos getAxisYTitle, getAxisXTitle, alternarMenu, fecharMenuFora como antes)
   getAxisYTitle(reportType: string): string {
     const titles: { [key: string]: string } = {
       productivity: 'Produtividade (kg/ha)',
@@ -246,7 +270,7 @@ export class RelatorioComponent implements OnInit, OnDestroy {
   }
 
   getAxisXTitle(reportType: string): string {
-    const titles: { [key:string]: string } = {
+    const titles: { [key: string]: string } = {
       productivity: 'Culturas',
       financial: 'Categorias',
       crop_production: 'Culturas'
@@ -254,14 +278,14 @@ export class RelatorioComponent implements OnInit, OnDestroy {
     return titles[reportType] || '';
   }
 
-  alternarMenu() {
+  alternarMenu(): void {
     this.menuAberto = !this.menuAberto;
   }
 
   @HostListener('document:click', ['$event'])
-  fecharMenuFora(event: MouseEvent) {
-    const alvo = event.target as HTMLElement;
-    if (!alvo.closest('.menu-toggle') && !alvo.closest('.main-menu')) {
+  fecharMenuFora(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (this.menuAberto && !target.closest('.main-menu') && !target.closest('.menu-toggle')) {
       this.menuAberto = false;
     }
   }
