@@ -31,9 +31,5 @@ export class MovimentacaoService { // Recomenda-se renomear para FinanceiroServi
     return this.http.put<Financeiro>(`${this.baseUrl}/financeUpdate/${id}`, mov);
   }
 
-  excluirMovimentacao(id: number): Observable<any> {
-    // CORREÇÃO: O backend não tinha uma rota de delete, ela será criada.
-    // O endpoint padronizado será /financeDelete/:id
-    return this.http.delete(`${this.baseUrl}/financeDelete/${id}`);
-  }
+ 
 }

@@ -1,4 +1,4 @@
-// ARQUIVO: src/app/components/relatorio/relatorio.component.ts
+// ARQUIVO COMPLETO: src/app/components/relatorio/relatorio.component.ts
 
 import { Component, HostListener, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -33,7 +33,7 @@ registerLocaleData(localePt);
   styleUrls: ['./relatorio.component.css']
 })
 export class RelatorioComponent implements OnInit, OnDestroy {
-  // ... (propriedades do componente como antes)
+  // --- Propriedades do Componente ---
   menuAberto = false;
   usuarioNome: string = '';
   usuarioFoto: string = 'https://placehold.co/40x40/aabbcc/ffffff?text=User';
@@ -105,9 +105,17 @@ export class RelatorioComponent implements OnInit, OnDestroy {
     const ctx = this.reportChartCanvas.nativeElement.getContext('2d');
     if (!ctx) return;
 
-    // ... (lógica de filtragem como antes)
-    const filteredProducoes = this.producoes.filter(prod => (this.selectedPropertyId === 'todos' || prod.propriedadeId === this.selectedPropertyId) && (this.selectedCropType === 'todos' || prod.cultura === this.selectedCropType));
-    const filteredMovimentacoes = this.movimentacoes.filter(mov => (this.selectedPropertyId === 'todos' || mov.propriedadeId === this.selectedPropertyId) && (!this.startDate || mov.data >= new Date(this.startDate)) && (!this.endDate || mov.data <= new Date(this.endDate)));
+    // ✅ Correção: agora filtrando por propriedadeId
+    const filteredProducoes = this.producoes.filter(prod =>
+      (this.selectedPropertyId === 'todos' || prod.propriedadeId === this.selectedPropertyId) &&
+      (this.selectedCropType === 'todos' || prod.cultura === this.selectedCropType)
+    );
+
+    const filteredMovimentacoes = this.movimentacoes.filter(mov =>
+      (this.selectedPropertyId === 'todos' || mov.propriedadeId === this.selectedPropertyId) &&
+      (!this.startDate || mov.data >= new Date(this.startDate)) &&
+      (!this.endDate || mov.data <= new Date(this.endDate))
+    );
 
     let labels: string[] = [];
     let datasets: any[] = [];
@@ -116,7 +124,6 @@ export class RelatorioComponent implements OnInit, OnDestroy {
 
     switch (this.reportType) {
       case 'productivity':
-        // ... (lógica de produtividade como antes)
         chartTitle = 'Produtividade por Cultura (kg/ha)';
         const productivityData = new Map<string, { totalYield: number, properties: Set<string> }>();
         filteredProducoes.forEach(prod => {
@@ -140,7 +147,6 @@ export class RelatorioComponent implements OnInit, OnDestroy {
         break;
 
       case 'financial':
-        // LÓGICA REVERTIDA PARA GRÁFICO DE BARRAS
         chartTitle = 'Resultado Financeiro';
         chartType = 'bar';
         const totalRevenue = filteredMovimentacoes.filter(r => r.tipo === 'receita').reduce((sum, r) => sum + r.valor, 0);
@@ -154,7 +160,6 @@ export class RelatorioComponent implements OnInit, OnDestroy {
         break;
 
       case 'crop_production':
-        // ... (lógica de produção por cultura como antes)
         chartTitle = 'Produção Total por Cultura (kg)';
         const cropProductionData = new Map<string, number>();
         filteredProducoes.forEach(prod => {
@@ -193,7 +198,6 @@ export class RelatorioComponent implements OnInit, OnDestroy {
             }
           }
         },
-        // CORREÇÃO: Como todos os gráficos são de barra, a verificação 'chartType !== "pie"' foi removida
         scales: {
           y: {
             beginAtZero: true,
@@ -210,56 +214,46 @@ export class RelatorioComponent implements OnInit, OnDestroy {
     });
   }
 
-  // NOVO MÉTODO PARA EXPORTAR PDF
+  // MÉTODO PARA EXPORTAR O RELATÓRIO COMO PDF
   async exportarRelatorioPDF(): Promise<void> {
-    const reportContent = document.getElementById('report-content');
-    if (!reportContent) {
+    const reportContentElement = document.getElementById('report-content');
+    if (!reportContentElement) {
       console.error("Elemento 'report-content' não encontrado para exportar o PDF.");
       return;
     }
 
-    // Adiciona uma classe para indicar que estamos gerando o PDF (útil para estilização)
     document.body.classList.add('generating-pdf');
     
-    // Usa html2canvas para capturar o conteúdo como uma imagem
-    const canvas = await html2canvas(reportContent, {
-      scale: 2, // Aumenta a resolução da imagem para melhor qualidade no PDF
+    const canvas = await html2canvas(reportContentElement, {
+      scale: 2,
       useCORS: true,
-      backgroundColor: '#ffffff' // Define um fundo branco para evitar transparências
+      backgroundColor: '#ffffff'
     });
 
-    // Remove a classe após a captura
     document.body.classList.remove('generating-pdf');
 
     const imgData = canvas.toDataURL('image/png');
-    
-    // Define as dimensões do PDF (A4 paisagem)
-    const pdf = new jsPDF('l', 'mm', 'a4'); // l = landscape (paisagem)
+    const pdf = new jsPDF('l', 'mm', 'a4');
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
-    
-    const imgWidth = canvas.width;
-    const imgHeight = canvas.height;
-    
-    // Calcula a proporção para a imagem caber na página
-    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-    const finalImgWidth = imgWidth * ratio;
-    const finalImgHeight = imgHeight * ratio;
-    
-    // Centraliza a imagem na página
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
+    const ratio = Math.min(pdfWidth / canvasWidth, pdfHeight / canvasHeight);
+
+    const finalImgWidth = canvasWidth * ratio * 0.95;
+    const finalImgHeight = canvasHeight * ratio * 0.95;
     const x = (pdfWidth - finalImgWidth) / 2;
     const y = (pdfHeight - finalImgHeight) / 2;
 
     pdf.addImage(imgData, 'PNG', x, y, finalImgWidth, finalImgHeight);
 
-    // Gera o nome do arquivo dinamicamente
     const dataAtual = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
-    const nomeArquivo = `Relatorio_FAVEP_${dataAtual}.pdf`;
+    const nomeArquivo = `Relatorio_FAVEP_${this.reportType}_${dataAtual}.pdf`;
     
     pdf.save(nomeArquivo);
   }
 
-  // ... (métodos getAxisYTitle, getAxisXTitle, alternarMenu, fecharMenuFora como antes)
+  // --- Métodos Auxiliares ---
   getAxisYTitle(reportType: string): string {
     const titles: { [key: string]: string } = {
       productivity: 'Produtividade (kg/ha)',

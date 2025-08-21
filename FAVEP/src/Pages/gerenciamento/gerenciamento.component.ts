@@ -216,9 +216,6 @@ export class GerenciamentoComponent implements OnInit, OnDestroy {
       case 'producao':
         exclusaoObservable = this.producaoService.excluirProducao(this.itemParaExcluir.id);
         break;
-      case 'financeiro':
-        exclusaoObservable = this.movimentacaoService.excluirMovimentacao(this.itemParaExcluir.id);
-        break;
       default:
         this.cancelarExclusao();
         return;
