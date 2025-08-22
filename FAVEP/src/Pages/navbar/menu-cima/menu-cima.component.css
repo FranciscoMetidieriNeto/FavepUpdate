@@ -164,6 +164,10 @@ input:checked + .slider:before {
   background-color: #00395ca3; /* From registration CSS */
 }
 
+.forgot-password-form-container {
+  background-color: #00395ca3; /* Consistent background */
+}
+
 
 .auth-modal-title {
   font-weight: 600;

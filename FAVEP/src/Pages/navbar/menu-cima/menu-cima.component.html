@@ -59,7 +59,7 @@
             <label for="loginCheck">Lembre-me</label>
           </div>
         </div>
-        <a class="senha" routerLink="/forgot-password" (click)="fecharModals()">Esqueceu a senha?</a>
+        <a class="senha" (click)="abrirForgotPasswordModal()">Esqueceu a senha?</a>
       </div>
       <div class="auth-actions">
         <a (click)="abrirRegisterModal()" class="auth-link">Não tem conta? Cadastrar-se</a>
@@ -96,22 +96,12 @@
           mask="(00) 00000-0000"
           required>
       </div>
-      <div class="password-requirements">
-        Mín. 8 caracteres, 1 maiúscula, 1 número e 1 caractere especial (ex: !&#64;#$).
-      </div>
-      <div class="form-line">
-        <input 
-          type="password" 
-          name="regPassword" 
-          placeholder="Crie sua senha" 
-          [(ngModel)]="registerUser.password" 
-          required>
-      </div>
-      
 
-      <div class="form-line">
-        <input type="password" name="regConfirmPassword" placeholder="Confirme sua senha" [(ngModel)]="registerUser.confirmarSenha" required>
+      <div style="padding: 15px; background-color: #fff3cd; border: 1px solid #ffeeba; color: #856404; border-radius: 5px;">
+        <strong>Atenção:</strong> Confira seu e-mail para definir a senha e acesar nosso site.<br>
+        <strong>Atenção:</strong> Use um e-mail real ao qual você tenha acesso.
       </div>
+
       <div class="auth-actions">
         <a (click)="abrirLoginModal()" class="auth-link">Já tem uma conta? Entrar</a>
       </div>
@@ -120,6 +110,35 @@
       <div class="message error" *ngIf="registerErrorMessage">{{ registerErrorMessage }}</div>
     </form>
   </div>
+
+  <!-- MODAL DE ESQUECEU A SENHA -->  <!-- MODAL DE ESQUECEU A SENHA -->  <!-- MODAL DE ESQUECEU A SENHA -->  <!-- MODAL DE ESQUECEU A SENHA -->
+  <div class="auth-modal-container forgot-password-form-container" *ngIf="mostrarForgotPasswordModal">
+    <h2 class="auth-modal-title">Recuperar Senha</h2>
+    <button (click)="fecharModals()" class="auth-modal-close-button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="3.5vh" height="3.5vh" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+        </svg>
+    </button>
+    <form (ngSubmit)="onForgotPasswordSubmit()" #forgotPasswordNgForm="ngForm">
+        <div style="padding: 15px; background-color: #fff3cd; border: 1px solid #ffeeba; color: #856404; border-radius: 5px;">
+          <strong>Atenção:</strong> Insira seu e-mail para enviarmos um link de redefinição de senha.<br>
+        </div>
+        <div class="inputs">
+            <div class="inputs-container">
+                <input type="email" id="forgotPasswordEmail" name="forgotPasswordEmail" [(ngModel)]="forgotPasswordEmail" placeholder="Insira seu e-mail de cadastro" required />
+            </div>
+        </div>
+        <div class="auth-actions">
+            <a (click)="abrirLoginModal()" class="auth-link">Lembrou a senha? Voltar para o Login</a>
+        </div>
+        <div class="confirmarBotao">
+            <input class="confirmar" type="submit" value="Enviar Link" />
+        </div>
+        <div class="message success" *ngIf="forgotPasswordSuccessMessage">{{ forgotPasswordSuccessMessage }}</div>
+        <div class="message error" *ngIf="forgotPasswordErrorMessage">{{ forgotPasswordErrorMessage }}</div>
+    </form>
+  </div>
+
 
 
 </div>
