@@ -6,6 +6,10 @@ CREATE TABLE "usuario" (
     "telefone" TEXT NOT NULL,
     "fotoperfil" TEXT,
     "senha" TEXT NOT NULL,
+    "emailVerified" BOOLEAN DEFAULT false,
+    "verificationToken" TEXT,
+    "resetPasswordToken" TEXT,
+    "resetPasswordExpires" TIMESTAMP(3),
 
     CONSTRAINT "usuario_pkey" PRIMARY KEY ("id")
 );
@@ -65,6 +69,12 @@ CREATE UNIQUE INDEX "usuario_email_key" ON "usuario"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "usuario_telefone_key" ON "usuario"("telefone");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "usuario_verificationToken_key" ON "usuario"("verificationToken");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "usuario_resetPasswordToken_key" ON "usuario"("resetPasswordToken");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "planos_mercado_pago_idAssinaturaExterna_key" ON "planos_mercado_pago"("idAssinaturaExterna");

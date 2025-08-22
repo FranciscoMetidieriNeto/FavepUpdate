@@ -8,14 +8,18 @@ datasource db {
 }
 
 model usuario {
-  id           String        @id @default(uuid())
-  nome         String
-  email        String        @unique
-  telefone     String        @unique
-  fotoperfil   String?
-  senha        String
-  propriedades propriedade[]
-  planos       PlanosMercadoPago[]
+  id                   String              @id @default(uuid())
+  nome                 String
+  email                String              @unique
+  telefone             String              @unique
+  fotoperfil           String?
+  senha                String
+  emailVerified        Boolean?            @default(false)
+  verificationToken    String?             @unique
+  resetPasswordToken   String?             @unique
+  resetPasswordExpires DateTime?
+  planos               PlanosMercadoPago[]
+  propriedades         propriedade[]
 }
 
 model propriedade {
@@ -54,19 +58,18 @@ model financeiro {
   propriedade   propriedade @relation(fields: [propriedadeId], references: [id])
 
   @@map("financeiro")
-
 }
 
 model PlanosMercadoPago {
-  id              String       @id @default(uuid())
-  status          String // Pendente - Pago/Ativo - Atrasado - Cancelado - Expirado
-  tipo            String // Semanal - Mensal - Trimestral - Semestral - Anual
-  valor           Float
-  dataAssinatura  DateTime @default(now())
-  metodoPagamento String // Pix - Boleto - Cartão Crédito/Débito
-  usuarioId       String
-  idAssinaturaExterna String? @unique
-  usuario         usuario  @relation(fields: [usuarioId], references: [id])
+  id                  String   @id @default(uuid())
+  status              String
+  tipo                String
+  valor               Float
+  dataAssinatura      DateTime @default(now())
+  metodoPagamento     String
+  usuarioId           String
+  idAssinaturaExterna String?  @unique
+  usuario             usuario  @relation(fields: [usuarioId], references: [id])
 
   @@map("planos_mercado_pago")
 }

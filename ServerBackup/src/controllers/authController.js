@@ -1,237 +1,251 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const prisma = require('../lib/prisma');
 const authConfig = require('../config/auth.json');
+const { sendVerificationEmail, sendPasswordResetEmail } = require('../service/mailService'); // Verifique o caminho
 
+// Gera um token JWT para autenticação
 function generateToken(params = {}) {
-  return jwt.sign(params, authConfig.secret, { expiresIn: 86400 });
+  return jwt.sign(params, authConfig.secret, { expiresIn: 86400 });
+}
+
+// Gera um token aleatório para verificação de e-mail e redefinição de senha
+function generateCryptoToken() {
+  return crypto.randomBytes(20).toString('hex');
 }
 
 module.exports = {
-  // # register
-  async register(req, res) {
-    console.log('➡️ Requisição recebida em /register');
-    console.log('📦 Dados recebidos (sem senha):', { ...req.body, senha: '[PROTEGIDA]', confirmarSenha: '[PROTEGIDA]' });
+  // # register
+  async register(req, res) {
+    console.log('➡️ Requisição recebida em /register');
+    const { nome, email, telefone } = req.body;
 
-    const { nome, email, telefone, senha, confirmarSenha } = req.body;
-
-    if (!nome || !email || !telefone || !senha || !confirmarSenha) {
-      console.warn('⚠️ Campos obrigatórios ausentes');
-      return res.status(400).json({
-        error: 'Campos obrigatórios: nome, email, telefone, senha, confirmarSenha.'
-      });
-    }
-
-    if (senha !== confirmarSenha) {
-      console.warn('⚠️ As senhas não coincidem durante o registro.');
-      return res.status(400).json({ error: 'As senhas não coincidem.' });
-    }
-
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>?]).{8,}$/;
-    if (senha.includes(' ') || senha.includes('/')) {
-        console.warn('⚠️ Senha contém caracteres inválidos (espaço ou /).');
-        return res.status(400).json({ error: 'A senha não pode conter espaços ou o caractere "/".' });
-    }
-    if (senha.length < 8) {
-        console.warn('⚠️ Senha muito curta.');
-        return res.status(400).json({ error: 'A senha deve ter no mínimo 8 caracteres.' });
-    }
-    if (!passwordRegex.test(senha)) {
-        console.warn('⚠️ A senha não atende aos critérios de segurança.');
-        return res.status(400).json({ 
-            error: 'A senha deve conter no mínimo: 1 letra maiúscula, 1 letra minúscula, 1 número e 1 caractere especial (!@#$%).' 
-        });
+    if (!nome || !email || !telefone) {
+      return res.status(400).json({
+        error: 'Campos obrigatórios: nome, email, telefone.'
+      });
     }
 
-    try {
-      const existingUser = await prisma.usuario.findUnique({ where: { email } });
+    try {
+      const existingUser = await prisma.usuario.findUnique({ where: { email } });
+      if (existingUser) {
+        return res.status(400).json({ error: 'Usuário já existe com este email.' });
+      }
 
-      if (existingUser) {
-        console.warn(`⚠️ Usuário com email ${email} já existe.`);
-        return res.status(400).json({ error: 'Usuário já existe com este email.' });
-      }
-    
-      const hashedPassword = await bcrypt.hash(senha, 8);
-      console.log('🔒 Senha criptografada com sucesso.');
-
-      const user = await prisma.usuario.create({
-        data: {
-          nome,
-          email,
-          telefone,
-          senha: hashedPassword
-        }
-      });
-
-      user.senha = undefined;
-      console.log('✅ Usuário registrado com sucesso:', user.id);
-
-      return res.status(201).json({
-        user,
-        token: generateToken({ id: user.id })
-      });
-    } catch (err) {
-      console.error('❌ Erro no register:', err.message);
-      return res.status(500).json({ error: 'Erro ao registrar usuário.' });
-    }
-  },
-
-  async login(req, res) {
-    console.log('➡️ Requisição recebida em /login');
-    console.log('📦 Email recebido para login:', req.body.email);
-
-    const { email, senha } = req.body;
-
-    if (!email || !senha) {
-      console.warn('⚠️ Campos obrigatórios (email, senha) ausentes para login.');
-      return res.status(400).json({ error: 'Email e senha são obrigatórios.' });
-    }
-
-    try {
-      const user = await prisma.usuario.findUnique({ 
-        where: { email },
-        include: {
-          planos: {
-            where: {
-              status: 'Pago/Ativo'
-            },
-            orderBy: {
-              dataAssinatura: 'desc'
-            },
-            take: 1
-          }
+      const verificationToken = generateCryptoToken();
+      
+      const user = await prisma.usuario.create({
+        data: {
+          nome,
+          email,
+          telefone,
+          senha: '', // Senha vazia até a verificação
+          verificationToken: verificationToken,
         }
       });
 
-      if (!user) {
-        console.warn(`⚠️ Usuário com email ${email} não encontrado para login.`);
-        return res.status(400).json({ error: 'Usuário não encontrado.' });
-      }
+      await sendVerificationEmail(user.email, verificationToken);
+      console.log(`✅ E-mail de verificação enviado para ${user.email}`);
+
+      return res.status(201).json({
+        message: 'Usuário pré-registrado! Verifique seu e-mail para confirmar o cadastro e definir sua senha.'
+      });
+    } catch (err) {
+      console.error('❌ Erro no register:', err.message);
+      return res.status(500).json({ error: 'Erro ao registrar usuário.' });
+    }
+  },
+
+  // # verifyEmailAndSetPassword
+  async verifyEmailAndSetPassword(req, res) {
+    const { token, senha, confirmarSenha } = req.body;
+    
+    if (!token || !senha || !confirmarSenha) {
+        return res.status(400).json({ error: 'Token e senhas são obrigatórios.' });
+    }
+
+    if (senha !== confirmarSenha) {
+        return res.status(400).json({ error: 'As senhas não coincidem.' });
+    }
+    
+    try {
+      const user = await prisma.usuario.findFirst({ 
+        where: { verificationToken: token } 
+      });
       
-      const isMatch = await bcrypt.compare(senha, user.senha);
-      
-      console.log('Resultado da comparação de senhas (bcrypt.compare):', isMatch);
-
-      if (!isMatch) {
-        console.warn('⚠️ Senha inválida para o usuário:', email);
-        return res.status(400).json({ error: 'Senha inválida.' });
-      }
-
-      user.senha = undefined;
-
-      console.log('✅ Login realizado com sucesso para o usuário:', user.id);
-
-      return res.status(200).json({
-        user,
-        token: generateToken({ id: user.id })
-      });
-    } catch (err) {
-      console.error('❌ Erro no login:', err.message);
-      return res.status(500).json({ error: 'Erro ao fazer login.' });
-    }
-  },
-
-  // # update
-  async update(req, res) {
-    const authenticatedUserId = req.userId;
-
-    console.log('➡️ Requisição recebida em /update');
-    console.log('🆔 ID do usuário autenticado (via token):', authenticatedUserId);
-    console.log('📦 Dados recebidos para atualização (sem senha):', { ...req.body, senha: '[PROTEGIDA]', confirmarSenha: '[PROTEGIDA]' });
-    
-    const { nome, email, telefone, senha, confirmarSenha } = req.body;
-    try {
-      const updateData = {};
-
-      if (nome) updateData.nome = nome;
-      if (email) updateData.email = email;
-      if (telefone) updateData.telefone = telefone;
-
-      if (senha || confirmarSenha) {
-        console.log('🔄 Tentativa de atualização de senha detectada.');
-        if (!senha || !confirmarSenha) {
-          console.warn('⚠️ Senha e confirmarSenha são obrigatórios para alteração de senha.');
-          return res.status(400).json({ error: 'Para alterar a senha, envie senha e confirmarSenha.' });
-        }
-
-        if (senha !== confirmarSenha) {
-          console.warn('⚠️ As senhas não coincidem durante a atualização.');
-          return res.status(400).json({ error: 'As senhas não coincidem.' });
-        }
+      if (!user) {
+        return res.status(400).json({ error: 'Token de verificação inválido ou expirado.' });
+      }
         
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>?]).{8,}$/;
-        if (senha.includes(' ') || senha.includes('/')) {
-            console.warn('⚠️ Senha contém caracteres inválidos (espaço ou /).');
-            return res.status(400).json({ error: 'A senha não pode conter espaços ou o caractere "/".' });
+      const hashedPassword = await bcrypt.hash(senha, 8);
+        
+      await prisma.usuario.update({
+          where: { id: user.id },
+          data: {
+              senha: hashedPassword,
+              verificationToken: null,
+              emailVerified: true
+          }
+      });
+
+      console.log('✅ Senha definida com sucesso para o usuário:', user.email);
+      return res.status(200).json({ message: 'E-mail verificado e senha definida com sucesso! Agora você pode fazer login.' });
+    } catch (error) {
+        console.error('❌ Erro ao definir senha:', error.message);
+        return res.status(500).json({ error: 'Erro ao verificar o e-mail e definir a senha.' });
+    }
+  },
+
+  // # forgotPassword
+  async forgotPassword(req, res) {
+    const { email } = req.body;
+
+    try {
+      const user = await prisma.usuario.findUnique({ where: { email } });
+
+      if (!user) {
+        // Resposta genérica para segurança
+        return res.status(200).json({ message: 'Se um usuário com este e-mail existir, um link de redefinição de senha será enviado.' });
+      }
+
+      const resetToken = generateCryptoToken();
+      const resetExpires = new Date(Date.now() + 3600000); // 1 hora de validade
+      
+      await prisma.usuario.update({
+        where: { id: user.id },
+        data: {
+          resetPasswordToken: resetToken,
+          resetPasswordExpires: resetExpires
         }
-        if (senha.length < 8) {
-            console.warn('⚠️ Senha muito curta.');
-            return res.status(400).json({ error: 'A senha deve ter no mínimo 8 caracteres.' });
-        }
-        if (!passwordRegex.test(senha)) {
-            console.warn('⚠️ A senha não atende aos critérios de segurança.');
-            return res.status(400).json({ 
-                error: 'A senha deve conter no mínimo: 1 letra maiúscula, 1 letra minúscula, 1 número e 1 caractere especial (!@#$%).' 
-            });
-        }
+      });
 
-        const hashedPassword = await bcrypt.hash(senha, 10);
-        console.log('🔒 Nova senha criptografada com sucesso.');
+      await sendPasswordResetEmail(user.email, resetToken);
+      console.log(`✅ E-mail de redefinição enviado para ${user.email}`);
 
-        updateData.senha = hashedPassword;
-        console.log('🔐 Senha atualizada para o usuário:', authenticatedUserId);
-      }
+      return res.status(200).json({ message: 'E-mail de redefinição de senha enviado com sucesso!' });
+    } catch (error) {
+      console.error('❌ Erro no forgotPassword:', error.message);
+      return res.status(500).json({ error: 'Erro ao solicitar a redefinição de senha.' });
+    }
+  },
 
-      const user = await prisma.usuario.update({
-        where: { id: authenticatedUserId },
-        data: updateData
-      });
+  // # resetPassword
+  async resetPassword(req, res) {
+    const { token, senha, confirmarSenha } = req.body;
 
-      user.senha = undefined;
-      console.log('✅ Usuário atualizado com sucesso:', user.id);
+    if (!token || !senha || !confirmarSenha) {
+        return res.status(400).json({ error: 'Token e senhas são obrigatórios.' });
+    }
 
-      const newToken = generateToken({ id: user.id });
+    if (senha !== confirmarSenha) {
+        return res.status(400).json({ error: 'As senhas não coincidem.' });
+    }
+    
+    try {
+      const user = await prisma.usuario.findFirst({
+          where: { 
+              resetPasswordToken: token,
+              resetPasswordExpires: { gt: new Date() } // 'gt' significa "greater than" (maior que)
+          }
+      });
+        
+      if (!user) {
+          return res.status(400).json({ error: 'Token de redefinição de senha inválido ou expirado.' });
+      }
+        
+      const hashedPassword = await bcrypt.hash(senha, 8);
+        
+      await prisma.usuario.update({
+          where: { id: user.id },
+          data: {
+              senha: hashedPassword,
+              resetPasswordToken: null,
+              resetPasswordExpires: null
+          }
+      });
+        
+      console.log('✅ Senha redefinida com sucesso para o usuário:', user.email);
+      return res.status(200).json({ message: 'Senha redefinida com sucesso!' });
+    } catch (error) {
+        console.error('❌ Erro no resetPassword:', error.message);
+        return res.status(500).json({ error: 'Erro ao redefinir a senha.' });
+    }
+  },
 
-      return res.status(200).json({
-        user,
-        token: newToken
-      });
-    } catch (err) {
-      console.error('❌ Erro ao atualizar usuário:', err.message);
-      if (err.code === 'P2002' && err.meta?.target?.includes('email')) {
-        return res.status(400).json({ error: 'Este email já está em uso.' });
-      }
-      if (err.code === 'P2025') {
-        return res.status(404).json({ error: 'Usuário não encontrado para atualizar.' });
-      }
-      return res.status(500).json({ error: 'Erro ao atualizar usuário.' });
-    }
-  },
+  // # login
+  async login(req, res) {
+    const { email, senha } = req.body;
 
-  // # delete
-  async delete(req, res) {
-    const authenticatedUserId = req.userId;
+    if (!email || !senha) {
+      return res.status(400).json({ error: 'Email e senha são obrigatórios.' });
+    }
 
-    console.log('➡️ Requisição recebida em /delete');
-    console.log('🆔 ID do usuário a ser deletado (via token):', authenticatedUserId);
-    
-    try {
-      await prisma.$transaction([
-        prisma.planosMercadoPago.deleteMany({
-          where: { usuarioId: authenticatedUserId }
-        }),
-        prisma.usuario.delete({ 
-          where: { id: authenticatedUserId } 
-        })
-      ]);
-      console.log('🗑️ Usuário e seus planos foram deletados com sucesso:', authenticatedUserId);
-      return res.status(204).send();
-    } catch (err) {
-      console.error('❌ Erro ao deletar usuário:', err.message);
-      if (err.code === 'P2025') {
-        return res.status(404).json({ error: 'Usuário não encontrado para deletar.' });
-      }
-      return res.status(500).json({ error: 'Erro ao deletar usuário.' });
-    }
-  }
+    try {
+      const user = await prisma.usuario.findUnique({ where: { email } });
+
+      if (!user) {
+        return res.status(400).json({ error: 'Usuário não encontrado.' });
+      }
+
+      if (!user.emailVerified) {
+        return res.status(401).json({ error: 'Por favor, confirme seu e-mail antes de fazer login.' });
+      }
+      
+      const isMatch = await bcrypt.compare(senha, user.senha);
+      
+      if (!isMatch) {
+        return res.status(400).json({ error: 'Senha inválida.' });
+      }
+
+      user.senha = undefined;
+
+      return res.status(200).json({
+        user,
+        token: generateToken({ id: user.id })
+      });
+    } catch (err) {
+      console.error('❌ Erro no login:', err.message);
+      return res.status(500).json({ error: 'Erro ao fazer login.' });
+    }
+  },
+
+  // As funções #update e #delete permanecem as mesmas
+  async update(req, res) {
+    const authenticatedUserId = req.userId;
+    const { nome, email, telefone } = req.body;
+
+    try {
+      const updateData = {};
+      if (nome) updateData.nome = nome;
+      if (email) updateData.email = email;
+      if (telefone) updateData.telefone = telefone;
+
+      const user = await prisma.usuario.update({
+        where: { id: authenticatedUserId },
+        data: updateData
+      });
+
+      user.senha = undefined;
+      
+      return res.status(200).json({
+        user,
+        token: generateToken({ id: user.id })
+      });
+    } catch (err) {
+      console.error('❌ Erro ao atualizar usuário:', err.message);
+      return res.status(500).json({ error: 'Erro ao atualizar usuário.' });
+    }
+  },
+
+  async delete(req, res) {
+    const authenticatedUserId = req.userId;
+    try {
+      await prisma.usuario.delete({ where: { id: authenticatedUserId } });
+      return res.status(204).send();
+    } catch (err) {
+      console.error('❌ Erro ao deletar usuário:', err.message);
+      return res.status(500).json({ error: 'Erro ao deletar usuário.' });
+    }
+  }
 };

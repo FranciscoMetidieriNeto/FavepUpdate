@@ -13,11 +13,13 @@
     "@prisma/client": "^6.7.0",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "favep": "file:",
     "jsonwebtoken": "^9.0.2",
     "mercadopago": "^2.8.0",
-    "mysql2": "^3.14.1"
+    "mysql2": "^3.14.1",
+    "nodemailer": "^7.0.5"
   },
   "devDependencies": {
     "nodemon": "^3.1.10",
