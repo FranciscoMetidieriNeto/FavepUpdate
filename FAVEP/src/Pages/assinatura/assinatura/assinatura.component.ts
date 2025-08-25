@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { lastValueFrom } from 'rxjs';
-import { environment } from '../../../environments/environment';
+// assinatura/assinatura.component.ts
 
-// Interfaces para organizar o código
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { lastValueFrom } from 'rxjs';
+import { MercadoPagoService } from '../../../services/mercadopago.service'; // Importe o service
+
+// Interfaces para tipagem
 interface MercadoPagoResponse {
   init_point: string;
 }
@@ -16,56 +18,60 @@ interface Plan {
 @Component({
   selector: 'app-assinatura',
   standalone: true,
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './assinatura.component.html',
-  styleUrl: './assinatura.component.css'
+  styleUrls: ['./assinatura.component.css']
 })
 export class AssinaturaComponent {
 
-  constructor(private http: HttpClient) {}
+  isLoading = false;
+
+  // Injete o MercadoPagoService
+  constructor(private mercadoPagoService: MercadoPagoService) {}
 
   /**
-   * Este método lida com os planos PAGOS, enviando para o Mercado Pago.
+   * Lida com a criação de uma assinatura para planos pagos.
    */
   async handleSubscription(plan: Plan, event: MouseEvent) {
+    this.isLoading = true;
     const button = event.target as HTMLButtonElement;
+    const originalText = button.textContent;
     button.textContent = 'Aguarde...';
     button.disabled = true;
 
     try {
-      const url = `${environment.apiUrl}/api/mercado-pago/create-subscription`;
-      console.log(`Enviando para o back-end:`, plan);
+      console.log(`Iniciando assinatura para o plano:`, plan);
 
-      const request$ = this.http.post<MercadoPagoResponse>(url, plan);
-      const data = await lastValueFrom(request$);
+      // Use o service para criar a assinatura
+      const request$ = this.mercadoPagoService.criarAssinatura(plan.tipo, plan.valor);
+      const data: MercadoPagoResponse = await lastValueFrom(request$);
 
+      // Redirecione o usuário para o link de pagamento do Mercado Pago
       if (data && data.init_point) {
         window.location.href = data.init_point;
       } else {
-        // ... (código de erro)
+        console.error('Erro: A resposta da API não continha um "init_point".', data);
+        alert('Ocorreu um erro ao gerar o link de pagamento. Tente novamente.');
+        button.textContent = originalText;
       }
     } catch (error) {
-      // ... (código de erro)
+      console.error('Falha ao processar a assinatura:', error);
+      alert('Não foi possível iniciar o processo de assinatura. Verifique o console para mais detalhes.');
+      button.textContent = originalText;
+    } finally {
+      this.isLoading = false;
+      if (button.textContent === 'Aguarde...') { // Só reabilita se não houve redirecionamento
+          button.disabled = false;
+      }
     }
   }
 
   /**
-   * NOVO MÉTODO: Lida com a assinatura do plano GRATUITO.
-   * Não vai para o Mercado Pago.
+   * Lida com a assinatura do plano gratuito.
    */
   handleFreeSubscription() {
     console.log('Usuário selecionou o plano gratuito.');
     alert('Plano gratuito ativado com sucesso!');
-
-    // LÓGICA FUTURA:
-    // Aqui você faria uma chamada para uma OUTRA rota do seu back-end,
-    // por exemplo: /api/users/activate-free-plan
-    // para registrar que o usuário ativou o plano gratuito no seu banco de dados.
-    //
-    // Exemplo:
-    // this.http.post(`${environment.apiUrl}/api/activate-free`, {}).subscribe(response => {
-    //   console.log('Plano gratuito ativado no servidor.');
-    //   // Redirecionar para o painel do usuário, etc.
-    // });
+    // Lógica futura: Chamar um service para registrar a ativação do plano gratuito no backend.
   }
 }

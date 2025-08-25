@@ -13,13 +13,13 @@
             <h3>Semanal</h3>
             <div class="price">Free</div>
             <span class="period">por semana</span>
-            <button class="btn-assinar" (click)="handleFreeSubscription()">Assinar Agora</button>
+            <button class="btn-assinar" (click)="handleSubscription({ tipo: 'Semanal', valor: 00 }, $event)">Assinar Agora</button>
           </th>
           <th>
             <h3>Mensal</h3>
-            <div class="price">R$ 2.000,00</div>
+            <div class="price">R$ 500,00</div>
             <span class="period">por mês</span>
-            <button class="btn-assinar" (click)="handleSubscription({ tipo: 'Mensal', valor: 2000 }, $event)">Assinar Agora</button>
+            <button class="btn-assinar" (click)="handleSubscription({ tipo: 'Mensal', valor: 500 }, $event)">Assinar Agora</button>
           </th>
           <th>
             <h3>Trimestral</h3>
