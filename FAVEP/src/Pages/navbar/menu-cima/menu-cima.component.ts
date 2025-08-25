@@ -25,6 +25,7 @@ export class MenuCimaComponent implements OnInit, OnDestroy {
   loginPassword: string = '';
   loginRememberMe: boolean = false;
   loginErrorMessage: string = '';
+  loginPasswordVisible: boolean = false; 
 
   // --- CORREÇÃO APLICADA AQUI ---
   // Removido 'password' e 'confirmarSenha' do objeto inicial
@@ -94,6 +95,11 @@ export class MenuCimaComponent implements OnInit, OnDestroy {
     this.loginPassword = '';
     this.loginErrorMessage = '';
     this.loginRememberMe = false;
+  }
+
+  toggleLoginPasswordVisibility(): void {
+    this.loginPasswordVisible = !this.loginPasswordVisible;
+    this.cdr.detectChanges();
   }
 
   abrirRegisterModal() {
