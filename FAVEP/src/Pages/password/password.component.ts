@@ -21,6 +21,10 @@ export class PasswordComponent implements OnInit {
   // Determina se a ação é de verificação de e-mail ou redefinição de senha
   isVerificationFlow: boolean = false;
 
+  // NOVAS PROPRIEDADES: Controle de visibilidade da senha
+  senhaVisivel: boolean = false;
+  confirmarSenhaVisivel: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -36,6 +40,16 @@ export class PasswordComponent implements OnInit {
     // Verifica a URL para determinar o fluxo
     this.isVerificationFlow = this.router.url.includes('verify-email');
   }
+
+    // NOVOS MÉTODOS: Para alternar a visibilidade das senhas
+      toggleSenhaVisibilidade(): void {
+        this.senhaVisivel = !this.senhaVisivel;
+      }
+
+      toggleConfirmarSenhaVisibilidade(): void {
+        this.confirmarSenhaVisivel = !this.confirmarSenhaVisivel;
+      }
+    
 
   onSubmit(): void {
     this.mensagemErro = '';
@@ -55,7 +69,6 @@ export class PasswordComponent implements OnInit {
       this.mensagemErro = 'As senhas não coincidem. Tente novamente.';
       return;
     }
-    
     // Escolhe qual método do serviço chamar com base no fluxo
     const apiCall = this.isVerificationFlow
       ? this.authService.verifyAndSetPassword(this.token, this.senha, this.confirmarSenha)

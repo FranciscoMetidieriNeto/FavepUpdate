@@ -1,6 +1,6 @@
 <div class="dashboard-container">
   <header class="dashboard-header">
-    <button class="menu-toggle" aria-label="Abrir menu">
+    <button class="menu-toggle" aria-label="Abrir menu" (click)="alternarMenu()">
       <i class="fas fa-bars"></i>
     </button>
     <h1>
@@ -16,25 +16,31 @@
     <a routerLink="/home" routerLinkActive="active">
       <span class="material-symbols-outlined">home</span> Home
     </a>
-
     <a routerLink="/gerenciamento" routerLinkActive="active">
       <span class="material-symbols-outlined">dashboard</span> Gerenciamento
     </a>
-
     <a routerLink="/estatistica" routerLinkActive="active">
       <span class="material-symbols-outlined">monitoring</span> Estatística
     </a>
-
     <a routerLink="/relatorio" routerLinkActive="active">
       <span class="material-symbols-outlined">overview</span> Relatório geral
     </a>
-
     <a routerLink="/usuario" routerLinkActive="active">
       <span class="material-symbols-outlined">account_circle</span> Configuração
     </a>
   </nav>
 
   <main class="dashboard-content">
+    <div class="filtros-container">
+      <div class="filtro-group">
+        <label for="filtro-propriedade">Filtrar por Propriedade:</label>
+        <select id="filtro-propriedade" [(ngModel)]="selectedPropertyId" (change)="processarDadosEstatisticos()">
+          <option *ngFor="let prop of propriedades" [value]="prop.id">{{ prop.nomepropriedade }}</option>
+          <option value="todos">Todas as Propriedades</option>
+        </select>
+      </div>
+    </div>
+    
     <div class="resumo-cards">
       <div class="resumo-card">
         <h3>Propriedades</h3>
@@ -52,7 +58,6 @@
         <p class="valor" [class.positivo]="resultadoFinanceiro >= 0" [class.negativo]="resultadoFinanceiro < 0">
           {{resultadoFinanceiro | currency:'BRL':'symbol':'1.2-2':'pt-BR'}}
         </p>
-        <p class="info">Últimos 30 dias</p>
       </div>
     </div>
 
@@ -67,7 +72,5 @@
         <canvas #financeiroChart></canvas>
       </div>
     </div>
-
-   
   </main>
 </div>

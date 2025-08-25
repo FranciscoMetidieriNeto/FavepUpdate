@@ -115,6 +115,40 @@ input:checked + .slider:before {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/*
+ * CÓDIGO CSS CORRIGIDO PARA O ÍCONE DE SENHA
+ * Este código posiciona o ícone de olho corretamente dentro do campo de senha.
+ */
+
+/* 1. Garante que o container principal do input seja a referência de posicionamento.
+   A posição relativa não afeta o layout, mas permite que o ícone (com position: absolute)
+   se posicione em relação a este container. */
+.inputs-container {
+  position: relative;
+}
+
+/* 2. Adiciona um espaço à direita DENTRO do campo de senha específico.
+   Isso evita que o texto digitado fique escondido embaixo do ícone. */
+.password-container input {
+  padding-right: 45px;
+}
+
+/* 3. Estilos para o ícone, posicionando-o DENTRO do campo. */
+.password-toggle-icon {
+  position: absolute;         /* Remove o ícone do fluxo normal para posicioná-lo sobre o campo. */
+  top: 50%;                 /* Coloca o topo do ícone no meio vertical do container. */
+  right: 15px;                /* Define a distância da borda direita. */
+  transform: translateY(-50%); /* Move o ícone 50% de sua própria altura para cima, centralizando-o perfeitamente. */
+  cursor: pointer;            /* Mostra o cursor de "mãozinha" para indicar que é clicável. */
+  color: #555;                /* Cor padrão do ícone. */
+  z-index: 2;                 /* Garante que o ícone fique na frente do campo de input. */
+  transition: color 0.2s;     /* Adiciona uma transição suave para a mudança de cor. */
+}
+
+.password-toggle-icon:hover {
+  color: #000;
+}
+
 .sign-in:hover {
   background-color: #ffffff;
   color: #1a5276;

@@ -40,7 +40,7 @@
             <label for="propertyFilter">Propriedade:</label>
             <select id="propertyFilter" [(ngModel)]="selectedPropertyId" (change)="gerarRelatorio()" name="propertyFilterSelect">
               <option value="todos">Todas as Propriedades</option>
-              <option *ngFor="let prop of propriedades" [value]="prop.nomepropriedade">{{prop.nomepropriedade}}</option>
+              <option *ngFor="let prop of propriedades" [value]="prop.id">{{prop.nomepropriedade}}</option>
             </select>
           </div>
 

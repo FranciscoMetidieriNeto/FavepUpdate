@@ -45,10 +45,16 @@ export class GerenciamentoComponent implements OnInit, OnDestroy {
   tipoEdicao: string = '';
   itemParaExcluir: any = null;
   tipoExclusao: string = '';
-  filtroAtivo: string = 'todos';
+  
+  // Filtros
+  filtroAtivo: string = 'todos'; // Para culturas
   filtroPeriodo: string = '30';
   termoBusca: string = '';
-  opcoesFiltro: { valor: string; texto: string }[] = [{ valor: 'todos', texto: 'Todos' }];
+  filtroPropriedade: string = 'todos';
+  
+  // Opções dos filtros
+  opcoesFiltro: { valor: string; texto: string }[] = [{ valor: 'todos', texto: 'Todas' }];
+  opcoesFiltroPropriedade: { valor: string; texto: string }[] = [{ valor: 'todos', texto: 'Todas' }];
 
   // --- Listas de Dados ---
   propriedades: Propriedade[] = [];
@@ -104,7 +110,13 @@ export class GerenciamentoComponent implements OnInit, OnDestroy {
         this.financeiros = movimentacoes.sort((a, b) => new Date(b.data as string).getTime() - new Date(a.data as string).getTime());
 
         const uniqueCrops = new Set<string>(this.producoes.map(p => p.cultura));
-        this.opcoesFiltro = [{ valor: 'todos', texto: 'Todos' }, ...Array.from(uniqueCrops).sort().map(c => ({ valor: c, texto: c }))];
+        this.opcoesFiltro = [{ valor: 'todos', texto: 'Todas' }, ...Array.from(uniqueCrops).sort().map(c => ({ valor: c, texto: c }))];
+        
+        this.opcoesFiltroPropriedade = [
+            { valor: 'todos', texto: 'Todas as Propriedades' },
+            ...this.propriedades.map(p => ({ valor: p.id, texto: p.nomepropriedade }))
+        ];
+
         this.todasCulturas = Array.from(uniqueCrops).sort();
         this.safras = Array.from(new Set(this.producoes.map(p => p.safra).filter(Boolean))).sort();
         this.aplicarFiltros();
@@ -115,6 +127,9 @@ export class GerenciamentoComponent implements OnInit, OnDestroy {
 
   selecionarAba(aba: string): void {
     this.abaAtiva = aba;
+    this.filtroAtivo = 'todos';
+    this.filtroPropriedade = 'todos';
+    this.termoBusca = '';
     this.aplicarFiltros();
   }
 
@@ -131,17 +146,16 @@ export class GerenciamentoComponent implements OnInit, OnDestroy {
     );
   }
 
+  // ✅ ALTERADO: Lógica de busca por texto removida.
   filtrarProducoes(): void {
     this.producoesFiltradas = this.producoes.filter(prod => {
       const filtroCultura = this.filtroAtivo === 'todos' || prod.cultura === this.filtroAtivo;
-      const busca = !this.termoBusca ||
-        this.getNomePropriedade(prod.propriedadeId).toLowerCase().includes(this.termoBusca.toLowerCase()) ||
-        prod.cultura.toLowerCase().includes(this.termoBusca.toLowerCase()) ||
-        prod.safra.toLowerCase().includes(this.termoBusca.toLowerCase());
-      return filtroCultura && busca;
+      const filtroProp = this.filtroPropriedade === 'todos' || prod.propriedadeId === this.filtroPropriedade;
+      return filtroCultura && filtroProp;
     });
   }
 
+  // ✅ ALTERADO: Lógica de busca por texto removida.
   filtrarFinanceiros(): void {
     const dias = parseInt(this.filtroPeriodo, 10);
     const dataLimite = new Date();
@@ -151,10 +165,8 @@ export class GerenciamentoComponent implements OnInit, OnDestroy {
 
     this.financeirosFiltrados = this.financeiros.filter(fin => {
       const periodo = this.filtroPeriodo === 'todos' || new Date(fin.data as string) >= dataLimite;
-      const busca = !this.termoBusca ||
-        (fin.descricao && fin.descricao.toLowerCase().includes(this.termoBusca.toLowerCase())) ||
-        (fin.propriedadeId && this.getNomePropriedade(fin.propriedadeId).toLowerCase().includes(this.termoBusca.toLowerCase()));
-      return periodo && busca;
+      const filtroProp = this.filtroPropriedade === 'todos' || fin.propriedadeId === this.filtroPropriedade;
+      return periodo && filtroProp;
     });
   }
 
@@ -162,19 +174,12 @@ export class GerenciamentoComponent implements OnInit, OnDestroy {
     return this.propriedades.reduce((total, prop) => total + (prop.area_ha || 0), 0);
   }
 
-  contarCulturasAtivas(): number {
-    return new Set(this.producoes.map(p => p.cultura)).size;
-  }
-
   calcularProducaoTotal(): number {
-    return this.producoes.reduce((total, prod) => total + (prod.produtividade || 0), 0);
+    return this.producoesFiltradas.reduce((total, prod) => total + (prod.produtividade || 0), 0);
   }
   
   calcularAreaPlantada(): number {
-    const propertyIds = new Set(this.producoes.map(p => p.propriedadeId));
-    return this.propriedades
-      .filter(p => propertyIds.has(p.id))
-      .reduce((total, prop) => total + (prop.area_ha || 0), 0);
+    return this.producoesFiltradas.reduce((total, prod) => total + (prod.areaproducao || 0), 0);
   }
 
   calcularProdutividadeMedia(): number {
@@ -184,13 +189,13 @@ export class GerenciamentoComponent implements OnInit, OnDestroy {
   }
 
   calcularTotalReceitas(): number {
-    return this.financeiros
+    return this.financeirosFiltrados
       .filter(m => m.tipo === 'receita')
       .reduce((total, m) => total + m.valor, 0);
   }
 
   calcularTotalDespesas(): number {
-    return this.financeiros
+    return this.financeirosFiltrados
       .filter(m => m.tipo === 'despesa')
       .reduce((total, m) => total + m.valor, 0);
   }
@@ -362,7 +367,7 @@ export class GerenciamentoComponent implements OnInit, OnDestroy {
     return prop ? prop.nomepropriedade : 'Propriedade não encontrada';
   }
 
-  trackById(index: number, item: { id: string | number }): string | number {
+  trackById(index: number, item: { id: any }): any {
     return item.id;
   }
 

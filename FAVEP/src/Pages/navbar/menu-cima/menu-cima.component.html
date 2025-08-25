@@ -1,3 +1,4 @@
+
 <!-- CABEÇALHO PRINCIPAL -->
 <header>
   <div class="logo"><img src="assets/img/FAVEP_LOGO_nobg.png" alt="Logo FAVEP" class="header-logo-img">FAVEP</div>
@@ -48,9 +49,21 @@
         <div class="inputs-container">
           <input type="email" id="loginEmail" name="loginEmail" [(ngModel)]="loginEmail" placeholder="Insira seu e-mail" required />
         </div>
-        <div class="inputs-container">
-          <input type="password" id="loginPassword" name="loginPassword" [(ngModel)]="loginPassword" placeholder="Insira sua senha" required />
-        </div>
+        <div class="inputs-container password-container">
+        <input
+          [type]="loginPasswordVisible ? 'text' : 'password'"
+          id="loginPassword"
+          name="loginPassword"
+          [(ngModel)]="loginPassword"
+          placeholder="Insira sua senha"
+          required
+        />
+        <i
+          class="password-toggle-icon"
+          [ngClass]="loginPasswordVisible ? 'fas fa-eye-slash' : 'fas fa-eye'"
+          (click)="toggleLoginPasswordVisibility()"
+        ></i>
+      </div>
       </div>
       <div class="botões">
         <div class="lembre-me">

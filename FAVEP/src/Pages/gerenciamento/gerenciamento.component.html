@@ -45,7 +45,14 @@
 
     <div class="toolbar">
       <div class="filtros">
-        <div class="filtro-group" *ngIf="abaAtiva === 'propriedades' || abaAtiva === 'producao'">
+        <div class="filtro-group" *ngIf="abaAtiva === 'producao' || abaAtiva === 'financeiro'">
+          <label for="filtro-propriedade">Filtrar por Propriedade:</label>
+          <select id="filtro-propriedade" [(ngModel)]="filtroPropriedade" (change)="aplicarFiltros()" name="filtroPropriedade">
+            <option *ngFor="let opcao of opcoesFiltroPropriedade" [value]="opcao.valor">{{opcao.texto}}</option>
+          </select>
+        </div>
+
+        <div class="filtro-group" *ngIf="abaAtiva === 'producao'">
           <label for="filtro-tipo">Filtrar por Cultura:</label>
           <select id="filtro-tipo" [(ngModel)]="filtroAtivo" (change)="aplicarFiltros()" name="filtroTipo">
             <option *ngFor="let opcao of opcoesFiltro" [value]="opcao.valor">{{opcao.texto}}</option>
@@ -63,8 +70,8 @@
           </select>
         </div>
 
-        <div class="search-group">
-          <input type="text" placeholder="Pesquisar..." [(ngModel)]="termoBusca" (input)="aplicarFiltros()" name="termoBusca">
+        <div class="search-group" *ngIf="abaAtiva === 'propriedades'">
+          <input type="text" placeholder="Pesquisar por nome ou localização..." [(ngModel)]="termoBusca" (input)="aplicarFiltros()" name="termoBusca">
           <button class="btn-search" (click)="aplicarFiltros()" aria-label="Pesquisar"><i class="fas fa-search"></i></button>
         </div>
       </div>
@@ -83,10 +90,6 @@
         <div class="summary-card">
           <h3>Área Total</h3>
           <p class="value">{{calcularAreaTotal() | number:'1.0-0':'pt-BR'}} ha</p>
-        </div>
-        <div class="summary-card">
-          <h3>Culturas Ativas</h3>
-          <p class="value">{{contarCulturasAtivas()}}</p>
         </div>
       </div>
       <div class="table-container">
