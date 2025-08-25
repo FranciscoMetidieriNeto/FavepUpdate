@@ -1,87 +1,87 @@
-import { Component } from '@angular/core';
-
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-
 import { FooterComponent } from '../footer/footer.component';
-
 import { MenuCimaComponent } from '../navbar/menu-cima/menu-cima.component';
-
+import { ContatoService } from '../../services/contato.service';
 
 @Component({
-  selector: 'app-contato',
-   standalone: true,
-  imports: [RouterLink, FooterComponent, RouterLinkActive, MenuCimaComponent],
-  templateUrl: './contato.component.html',
-  styleUrls: ['./contato.component.css']
-
+  selector: 'app-contato',
+  standalone: true,
+  // Adicionamos CommonModule e ReactiveFormsModule para o novo formulário
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterLink,
+    FooterComponent,
+    RouterLinkActive,
+    MenuCimaComponent
+  ],
+  templateUrl: './contato.component.html',
+  styleUrls: ['./contato.component.css']
 })
+export class ContatoComponent implements OnInit {
+  // Propriedades para gerenciar o estado do formulário e feedback
+  contactForm!: FormGroup;
+  mensagemSucesso: string = '';
+  mensagemErro: string = '';
+  isLoading: boolean = false;
 
-export class ContatoComponent {
+  constructor(
+    private fb: FormBuilder,
+    private contatoService: ContatoService // Injetamos o serviço de contato
+  ) { }
 
- 
+  ngOnInit(): void {
+    // Inicializamos o formulário com validações
+    this.contactForm = this.fb.group({
+      nome: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      mensagem: ['', [Validators.required, Validators.minLength(10)]]
+    });
+  }
 
-   sendEmail(event: Event) {
+  /**
+   * Função chamada quando o formulário de contato é enviado.
+   * Ela valida os dados e usa o ContatoService para enviar a mensagem para a API.
+   */
+  onSubmit(): void {
+    // Se o formulário for inválido, marca todos os campos como "tocados" para exibir os erros
+    if (this.contactForm.invalid) {
+      this.contactForm.markAllAsTouched();
+      return;
+    }
 
-    event.preventDefault();
+    // Define o estado de carregamento e limpa mensagens antigas
+    this.isLoading = true;
+    this.mensagemSucesso = '';
+    this.mensagemErro = '';
 
-    const nome = (document.getElementById("nome-email") as HTMLInputElement).value;
+    // Chama o serviço para enviar os dados do formulário para o backend
+    this.contatoService.enviarMensagem(this.contactForm.value).subscribe({
+      next: (response) => {
+        // Em caso de sucesso
+        this.mensagemSucesso = response.message || 'Mensagem enviada com sucesso!';
+        this.contactForm.reset(); // Limpa o formulário
+        this.isLoading = false;
+      },
+      error: (err) => {
+        // Em caso de erro
+        this.mensagemErro = err.error?.error || 'Ocorreu um erro ao enviar a mensagem. Tente novamente mais tarde.';
+        this.isLoading = false;
+      }
+    });
+  }
 
-    const email = (document.getElementById("email") as HTMLInputElement).value; // Adicionado email
-
-    const mensagem = (document.getElementById("mensagem-email") as HTMLTextAreaElement).value;
-
-    const destinatario = "contato@favep.com.br"; // Altere aqui para o email da FAVEP
-
-
-
-    // Verificação básica de preenchimento (já é feita pelo 'required' no HTML, mas útil para o JS)
-
-    if (!nome || !email || !mensagem) {
-
-        alert("Por favor, preencha todos os campos do formulário.");
-
-        return;
-
-    }
-
-
-
-    const assunto = `Mensagem do Site - ${nome}`;
-
-    const corpo = `Nome: ${nome}\nEmail: ${email}\nMensagem: ${mensagem}`; // Inclui email no corpo
-
-   
-
-    // Abrir cliente de email
-
-    window.location.href = `mailto:${destinatario}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`;
-
-  }
-
-
-
-  sendWhatsApp(event: Event) {
-
-    event.preventDefault();
-
-    // Você pode adicionar campos de nome e mensagem no HTML e pegá-los aqui, se quiser enviar mensagem personalizada.
-
-    // Por simplicidade, vou usar um texto padrão aqui.
-
-    // const nome = (document.getElementById("nome-whatsapp") as HTMLInputElement)?.value || "Usuário";
-
-    // const mensagem = (document.getElementById("mensagem-whatsapp") as HTMLTextAreaElement)?.value || "Gostaria de mais informações.";
-
-
-
-    const textoPadrao = encodeURIComponent("Olá, gostaria de mais informações sobre os serviços da FAVEP.");
-
-    const numero = "551632520000"; // Número de WhatsApp da FAVEP
-
-
-
-    window.open(`https://wa.me/${numero}?text=${textoPadrao}`, "_blank");
-
-  }
-
+  /**
+   * Mantivemos sua função para abrir o WhatsApp.
+   * Ela é chamada por um botão separado no HTML.
+   */
+  sendWhatsApp(event: Event) {
+    event.preventDefault();
+    const textoPadrao = encodeURIComponent("Olá, gostaria de mais informações sobre os serviços da FAVEP.");
+    const numero = "551632520000"; // Número de WhatsApp da FAVEP
+    window.open(`https://wa.me/${numero}?text=${textoPadrao}`, "_blank");
+  }
 }

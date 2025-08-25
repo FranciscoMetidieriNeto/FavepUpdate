@@ -26,8 +26,9 @@ export class MenuCimaComponent implements OnInit, OnDestroy {
   loginRememberMe: boolean = false;
   loginErrorMessage: string = '';
 
-  // Propriedades para o formulário de Registro
-  registerUser: any = { username: '', email: '', password: '', telefone: '', confirmarSenha: '' };
+  // --- CORREÇÃO APLICADA AQUI ---
+  // Removido 'password' e 'confirmarSenha' do objeto inicial
+  registerUser: any = { username: '', email: '', telefone: '' };
   registerSuccessMessage: string = '';
   registerErrorMessage: string = '';
 
@@ -63,7 +64,6 @@ export class MenuCimaComponent implements OnInit, OnDestroy {
   toggleDropdown(event: Event): void {
     event.stopPropagation();
     this.mostrarDropdown = !this.mostrarDropdown;
-    console.log('toggleDropdown foi chamado! Novo estado de mostrarDropdown:', this.mostrarDropdown);
     this.cdr.detectChanges();
   }
 
@@ -99,7 +99,9 @@ export class MenuCimaComponent implements OnInit, OnDestroy {
   abrirRegisterModal() {
     this.fecharModals();
     this.mostrarRegisterModal = true;
-    this.registerUser = { username: '', email: '', password: '', telefone: '', confirmarSenha: '' };
+    // --- CORREÇÃO APLICADA AQUI ---
+    // Resetando o objeto sem os campos de senha
+    this.registerUser = { username: '', email: '', telefone: '' };
     this.registerSuccessMessage = '';
     this.registerErrorMessage = '';
   }
@@ -139,36 +141,32 @@ export class MenuCimaComponent implements OnInit, OnDestroy {
   }
 
   onRegisterSubmit() {
-    // 1. Validação de campos obrigatórios
-    if (!this.registerUser.username || !this.registerUser.email || !this.registerUser.password || !this.registerUser.telefone || !this.registerUser.confirmarSenha) {
-      this.registerErrorMessage = 'Todos os campos são obrigatórios.';
-      return;
-    }
-
-    // 2. Validação para garantir que as senhas coincidem
-    if (this.registerUser.password !== this.registerUser.confirmarSenha) {
-      this.registerErrorMessage = 'As senhas não coincidem.';
+    // --- CORREÇÃO APLICADA AQUI ---
+    // 1. Validação de campos obrigatórios (sem senha)
+    if (!this.registerUser.username || !this.registerUser.email || !this.registerUser.telefone) {
+      this.registerErrorMessage = 'Nome, e-mail e telefone são obrigatórios.';
       return;
     }
 
     // Limpa a mensagem de erro se a validação passar
     this.registerErrorMessage = '';
 
-    // 3. Mapeia os campos do formulário para o formato que o back-end espera (payload)
+    // 2. Mapeia os campos para o formato que o back-end espera (sem senha)
     const payload = {
       nome: this.registerUser.username,
       email: this.registerUser.email,
-      telefone: this.registerUser.telefone,
-      senha: this.registerUser.password,
-      confirmarSenha: this.registerUser.confirmarSenha
+      telefone: this.registerUser.telefone
     };
 
     this.apiService.register(payload).subscribe({
-      next: () => {
-        this.registerSuccessMessage = 'Cadastro realizado com sucesso! Faça o login para continuar.';
+      next: (response) => {
+        // --- ATUALIZAÇÃO ---
+        // Exibe a mensagem de sucesso que vem do backend
+        this.registerSuccessMessage = response.message || 'Cadastro realizado! Verifique seu e-mail para continuar.';
+        // Fecha o modal de registro após um tempo para o usuário ler a mensagem
         setTimeout(() => {
-          this.abrirLoginModal();
-        }, 2500);
+            this.fecharModals();
+        }, 3000);
       },
       error: (error) => {
         console.error('Erro no cadastro', error);
@@ -191,7 +189,6 @@ export class MenuCimaComponent implements OnInit, OnDestroy {
       },
       error: (error: any) => {
         console.error('Erro ao enviar link de recuperação', error);
-        // For security reasons, we show the same message for errors to prevent email enumeration.
         this.forgotPasswordSuccessMessage = 'Se o e-mail estiver cadastrado, um link de recuperação foi enviado.';
       }
     });

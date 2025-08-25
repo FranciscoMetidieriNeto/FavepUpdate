@@ -4,25 +4,22 @@
     <div class="container">
         <div class="row contact-grid">
 
+            <!-- Coluna de Informações de Contato (Permanece a mesma) -->
             <div class="col-lg-5 contact-info-column">
                 <div class="contact-info-card">
                     <h2 class="card-title">Informações para Contato</h2>
-
                     <div class="contact-detail">
                         <i class="fas fa-map-marker-alt contact-icon"></i>
                         <p>Av. Dr. Flávio Henrique Lemos, 585 - Portal Itamaracá, Taquaritinga - SP, 15900-000</p>
                     </div>
-
                     <div class="contact-detail">
                         <i class="fas fa-phone-alt contact-icon"></i>
                         <a href="tel:+551632520000">+55 (16) 3252-0000</a>
                     </div>
-
                     <div class="contact-detail">
                         <i class="fas fa-envelope contact-icon"></i>
                         <a href="mailto:contato&#64;favep.com.br">contato&#64;favep.com.br</a>
                     </div>
-
                     <h3 class="whatsapp-title">Atendimento via WhatsApp</h3>
                     <p class="whatsapp-description">Converse diretamente com nossa equipe. Clique no botão abaixo para iniciar a conversa.</p>
                     <button class="whatsapp-btn" (click)="sendWhatsApp($event)">
@@ -31,26 +28,59 @@
                 </div>
             </div>
 
+            <!-- Coluna do Formulário de Contato (Atualizada) -->
             <div class="col-lg-6 contact-form-column">
-                <form class="contact-form-card" (submit)="sendEmail($event)">
+                <!--
+                  - Ligamos o formulário ao 'contactForm' do nosso componente.
+                  - Usamos (ngSubmit) para chamar a função onSubmit().
+                -->
+                <form class="contact-form-card" [formGroup]="contactForm" (ngSubmit)="onSubmit()">
                     <h2 class="card-title form-header">Envie sua Mensagem</h2>
                     
+                    <!-- Campo Nome -->
                     <div class="form-group">
-                        <label for="nome-email">Seu Nome:</label>
-                        <input type="text" id="nome-email" placeholder="Digite seu nome" required>
+                        <label for="nome">Seu Nome:</label>
+                        <input type="text" id="nome" formControlName="nome" placeholder="Digite seu nome">
+                        <!-- Mensagem de erro para o campo nome -->
+                        <div *ngIf="contactForm.get('nome')?.invalid && contactForm.get('nome')?.touched" class="error-message">
+                          O nome é obrigatório.
+                        </div>
                     </div>
 
+                    <!-- Campo Email -->
                     <div class="form-group">
                         <label for="email">Seu Email:</label>
-                        <input type="email" id="email" placeholder="Digite seu email" required>
+                        <input type="email" id="email" formControlName="email" placeholder="Digite seu email">
+                        <!-- Mensagens de erro para o campo email -->
+                        <div *ngIf="contactForm.get('email')?.invalid && contactForm.get('email')?.touched" class="error-message">
+                          <span *ngIf="contactForm.get('email')?.errors?.['required']">O e-mail é obrigatório.</span>
+                          <span *ngIf="contactForm.get('email')?.errors?.['email']">Por favor, insira um e-mail válido.</span>
+                        </div>
                     </div>
 
+                    <!-- Campo Mensagem -->
                     <div class="form-group">
-                        <label for="mensagem-email">Sua Mensagem:</label>
-                        <textarea id="mensagem-email" rows="6" placeholder="Explique o que está acontecendo..." required></textarea>
+                        <label for="mensagem">Sua Mensagem:</label>
+                        <textarea id="mensagem" formControlName="mensagem" rows="6" placeholder="Explique o que está acontecendo..."></textarea>
+                        <!-- Mensagens de erro para o campo mensagem -->
+                        <div *ngIf="contactForm.get('mensagem')?.invalid && contactForm.get('mensagem')?.touched" class="error-message">
+                           <span *ngIf="contactForm.get('mensagem')?.errors?.['required']">A mensagem é obrigatória.</span>
+                           <span *ngIf="contactForm.get('mensagem')?.errors?.['minlength']">A mensagem deve ter pelo menos 10 caracteres.</span>
+                        </div>
                     </div>
 
-                    <button type="submit" class="submit-btn">Enviar Mensagem</button>
+                    <!-- Botão de Envio -->
+                    <button type="submit" class="submit-btn" [disabled]="contactForm.invalid || isLoading">
+                        {{ isLoading ? 'Enviando...' : 'Enviar Mensagem' }}
+                    </button>
+
+                    <!-- Mensagens de Feedback (Sucesso ou Erro) -->
+                    <div *ngIf="mensagemSucesso" class="feedback-message success">
+                        {{ mensagemSucesso }}
+                    </div>
+                    <div *ngIf="mensagemErro" class="feedback-message error">
+                        {{ mensagemErro }}
+                    </div>
                 </form>
             </div>
 

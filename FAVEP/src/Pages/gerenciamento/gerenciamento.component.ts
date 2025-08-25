@@ -18,7 +18,7 @@ import {
   Usuario,
   Propriedade,
   Producao,
-  Financeiro, // CORREÇÃO: Importando o modelo 'Financeiro' correto
+  Financeiro,
 } from '../../models/api.models';
 
 registerLocaleData(localePt);
@@ -53,17 +53,17 @@ export class GerenciamentoComponent implements OnInit, OnDestroy {
   // --- Listas de Dados ---
   propriedades: Propriedade[] = [];
   producoes: Producao[] = [];
-  financeiros: Financeiro[] = []; // CORREÇÃO: Renomeado de 'movimentacoes' para 'financeiros'
+  financeiros: Financeiro[] = [];
 
   // --- Listas Filtradas para Exibição ---
   propriedadesFiltradas: Propriedade[] = [];
   producoesFiltradas: Producao[] = [];
-  financeirosFiltrados: Financeiro[] = []; // CORREÇÃO: Renomeado de 'movimentacoesFiltradas'
+  financeirosFiltrados: Financeiro[] = [];
 
   // --- Objetos para Edição/Criação no Modal ---
   propriedadeEditada: Partial<Propriedade> = {};
   producaoEditada: Partial<Producao> = {};
-  financeiroEditado: Partial<Financeiro> = { tipo: 'receita' }; // CORREÇÃO: Renomeado de 'movimentacaoEditada'
+  financeiroEditado: Partial<Financeiro> = { tipo: 'receita' };
 
   todasCulturas: string[] = [];
   safras: string[] = [];
@@ -74,7 +74,7 @@ export class GerenciamentoComponent implements OnInit, OnDestroy {
     private dashboardDataService: DashboardDataService,
     private propriedadeService: PropriedadeService,
     private producaoService: ProducaoService,
-    private movimentacaoService: MovimentacaoService, // O serviço pode manter o nome antigo se preferir
+    private movimentacaoService: MovimentacaoService,
     private authService: AuthService,
     private datePipe: DatePipe
   ) {}
@@ -98,7 +98,6 @@ export class GerenciamentoComponent implements OnInit, OnDestroy {
   carregarTodosDados(): void {
     this.dashboardDataService.carregarDadosDashboard().subscribe({
       next: (data) => {
-        // O dashboardDataService foi corrigido para retornar 'movimentacoes' que é um array de 'Financeiro'
         const { propriedades, producoes, movimentacoes } = data;
         this.propriedades = propriedades;
         this.producoes = producoes;
@@ -122,7 +121,7 @@ export class GerenciamentoComponent implements OnInit, OnDestroy {
   aplicarFiltros(): void {
     this.filtrarPropriedades();
     this.filtrarProducoes();
-    this.filtrarFinanceiros(); // CORREÇÃO: Renomeado
+    this.filtrarFinanceiros();
   }
 
   filtrarPropriedades(): void {
@@ -136,7 +135,6 @@ export class GerenciamentoComponent implements OnInit, OnDestroy {
     this.producoesFiltradas = this.producoes.filter(prod => {
       const filtroCultura = this.filtroAtivo === 'todos' || prod.cultura === this.filtroAtivo;
       const busca = !this.termoBusca ||
-        // CORREÇÃO: Usa o 'propriedadeId' para buscar o nome correto
         this.getNomePropriedade(prod.propriedadeId).toLowerCase().includes(this.termoBusca.toLowerCase()) ||
         prod.cultura.toLowerCase().includes(this.termoBusca.toLowerCase()) ||
         prod.safra.toLowerCase().includes(this.termoBusca.toLowerCase());
@@ -144,7 +142,6 @@ export class GerenciamentoComponent implements OnInit, OnDestroy {
     });
   }
 
-  // CORREÇÃO: Renomeado e lógica ajustada para usar 'propriedadeId'
   filtrarFinanceiros(): void {
     const dias = parseInt(this.filtroPeriodo, 10);
     const dataLimite = new Date();
@@ -161,7 +158,6 @@ export class GerenciamentoComponent implements OnInit, OnDestroy {
     });
   }
 
-  // --- Métodos de Cálculo (sem alterações na lógica, mas agora usam os dados corretos) ---
   calcularAreaTotal(): number {
     return this.propriedades.reduce((total, prop) => total + (prop.area_ha || 0), 0);
   }
@@ -174,7 +170,6 @@ export class GerenciamentoComponent implements OnInit, OnDestroy {
     return this.producoes.reduce((total, prod) => total + (prod.produtividade || 0), 0);
   }
   
-  // CORREÇÃO: Usa 'propriedadeId' para garantir a contagem correta
   calcularAreaPlantada(): number {
     const propertyIds = new Set(this.producoes.map(p => p.propriedadeId));
     return this.propriedades
@@ -204,7 +199,6 @@ export class GerenciamentoComponent implements OnInit, OnDestroy {
     return this.calcularTotalReceitas() - this.calcularTotalDespesas();
   }
 
-  // CORREÇÃO: Lógica de exclusão agora usa o ID correto para cada entidade
   executarExclusao(): void {
     if (!this.itemParaExcluir || !this.itemParaExcluir.id) return;
     let exclusaoObservable;
@@ -234,11 +228,10 @@ export class GerenciamentoComponent implements OnInit, OnDestroy {
     switch (this.tipoEdicao) {
       case 'propriedades': this.salvarPropriedade(); break;
       case 'producao': this.salvarProducao(); break;
-      case 'financeiro': this.salvarFinanceiro(); break; // CORREÇÃO: Renomeado
+      case 'financeiro': this.salvarFinanceiro(); break;
     }
   }
 
-  // CORREÇÃO: Lógica de salvar baseada na existência do 'id'
   salvarPropriedade(): void {
     const { id, ...dados } = this.propriedadeEditada;
     
@@ -254,7 +247,6 @@ export class GerenciamentoComponent implements OnInit, OnDestroy {
 
   salvarProducao(): void {
     const { id, ...dados } = this.producaoEditada;
-    // Garante que o ID da propriedade foi selecionado
     if (!dados.propriedadeId) {
       console.error("ID da propriedade é obrigatório para salvar a produção.");
       return;
@@ -269,7 +261,6 @@ export class GerenciamentoComponent implements OnInit, OnDestroy {
     });
   }
 
-  // CORREÇÃO: Renomeado e lógica ajustada
   salvarFinanceiro(): void {
     const { id, ...dados } = this.financeiroEditado;
     if (!dados.propriedadeId) {
@@ -304,11 +295,9 @@ export class GerenciamentoComponent implements OnInit, OnDestroy {
         this.propriedadeEditada = {}; 
         break;
       case 'producao': 
-        // CORREÇÃO: Inicializa com 'propriedadeId'
         this.producaoEditada = { cultura: '', safra: '', areaproducao: 0, produtividade: 0, data: new Date(), propriedadeId: '' }; 
         break;
       case 'financeiro': 
-        // CORREÇÃO: Inicializa com 'propriedadeId'
         this.financeiroEditado = { tipo: 'receita', data: new Date(), descricao: '', valor: 0, propriedadeId: '' }; 
         break;
     }
@@ -329,9 +318,7 @@ export class GerenciamentoComponent implements OnInit, OnDestroy {
   }
 
   editarProducao(prod: Producao): void {
-    // Formata a data para o input type="date"
     const dataFormatada = this.datePipe.transform(prod.data, 'yyyy-MM-dd');
-    // CORREÇÃO: Adiciona um fallback ('') para o caso de o transform retornar null
     this.producaoEditada = { ...prod, data: dataFormatada || '' };
     this.modalTitulo = 'Editar Produção';
     this.tipoEdicao = 'producao';
@@ -340,14 +327,12 @@ export class GerenciamentoComponent implements OnInit, OnDestroy {
 
   editarMovimentacao(fin: Financeiro): void {
     const dataFormatada = this.datePipe.transform(fin.data, 'yyyy-MM-dd');
-    // CORREÇÃO: Adiciona um fallback ('') para o caso de o transform retornar null
     this.financeiroEditado = { ...fin, data: dataFormatada || '' };
     this.modalTitulo = 'Editar Movimentação Financeira';
     this.tipoEdicao = 'financeiro';
     this.modalAberto = true;
   }
 
-  // CORREÇÃO: Mensagem de confirmação usa o nome correto do item
   confirmarExclusao(item: any, tipo: string): void {
     this.itemParaExcluir = item;
     this.tipoExclusao = tipo;
@@ -371,14 +356,12 @@ export class GerenciamentoComponent implements OnInit, OnDestroy {
     return titulos[this.abaAtiva] || 'Item';
   }
 
-  // CORREÇÃO: Função agora busca pelo ID da propriedade (string)
   getNomePropriedade(id: string): string {
-    if (!id) return 'Geral'; // Retorna um valor padrão se não houver ID
+    if (!id) return 'Geral';
     const prop = this.propriedades.find((p) => p.id === id);
     return prop ? prop.nomepropriedade : 'Propriedade não encontrada';
   }
 
-  // CORREÇÃO: trackBy agora usa apenas o ID, que é o identificador único
   trackById(index: number, item: { id: string | number }): string | number {
     return item.id;
   }

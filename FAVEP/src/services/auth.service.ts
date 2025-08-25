@@ -12,7 +12,6 @@ export class AuthService {
   private authUrl = 'http://localhost:5050/auth';
   private isBrowser: boolean;
 
-  // BehaviorSubject para armazenar o usuário atual. Ele é a "fonte da verdade".
   private currentUserSubject: BehaviorSubject<Usuario | null>;
   public currentUser: Observable<Usuario | null>;
 
@@ -21,12 +20,10 @@ export class AuthService {
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
-    // Inicializa o BehaviorSubject com o usuário que já pode estar no localStorage
     this.currentUserSubject = new BehaviorSubject<Usuario | null>(this.getUser());
     this.currentUser = this.currentUserSubject.asObservable();
   }
 
-  // Método público para obter o valor atual do usuário de forma síncrona, se necessário
   public get currentUserValue(): Usuario | null {
     return this.currentUserSubject.value;
   }
@@ -40,7 +37,6 @@ export class AuthService {
       tap(response => {
         if (response.token && response.user) {
           this.setToken(response.token);
-          // O método setUser agora vai cuidar de salvar e notificar os componentes
           this.setUser(response.user);
         }
       })
@@ -51,11 +47,20 @@ export class AuthService {
     return this.http.post<any>(`${this.authUrl}/forgot-password`, { email });
   }
 
+  // NOVO: Método para verificar e-mail e definir a senha
+  verifyAndSetPassword(token: string, senha: string, confirmarSenha: string): Observable<any> {
+    return this.http.post<any>(`${this.authUrl}/verify-and-set-password`, { token, senha, confirmarSenha });
+  }
+
+  // NOVO: Método para redefinir a senha
+  resetPassword(token: string, senha: string, confirmarSenha: string): Observable<any> {
+    return this.http.post<any>(`${this.authUrl}/reset-password`, { token, senha, confirmarSenha });
+  }
+
   logout(): void {
     if (this.isBrowser) {
       localStorage.removeItem('user');
       localStorage.removeItem('token');
-      // Notifica todos os 'escutadores' que o usuário fez logout
       this.currentUserSubject.next(null);
     }
   }
@@ -72,15 +77,9 @@ export class AuthService {
     return this.isBrowser ? localStorage.getItem('token') : null;
   }
 
-  /**
-   * ---- MÉTODO CORRIGIDO ----
-   * Agora, além de salvar no localStorage, este método também atualiza
-   * o BehaviorSubject, notificando toda a aplicação sobre a mudança.
-   */
   setUser(usuario: Usuario): void {
     if (this.isBrowser) {
       localStorage.setItem('user', JSON.stringify(usuario));
-      // Notifica todos os componentes que estão inscritos em 'currentUser'
       this.currentUserSubject.next(usuario);
     }
   }

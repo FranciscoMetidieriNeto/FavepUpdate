@@ -1,23 +1,22 @@
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com", // CORRIGIDO
+  host: "smtp.gmail.com",
   port: 465,
   secure: true,
   auth: {
-    user: process.env.EMAIL_USER, // MELHORADO
-    pass: process.env.EMAIL_PASS  // MELHORADO
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
   }
 });
 
 async function sendVerificationEmail(to, token) {
-  const verificationLink = `${process.env.API_BASE_URL}/auth/verify-email?token=${token}`;
+  const verificationLink = `${process.env.FRONTEND_URL}/auth/verify-email?token=${token}`;
 
   const mailOptions = {
     from: `"Favep" <${process.env.EMAIL_USER}>`,
     to,
     subject: 'Confirmação de E-mail - Favep',
-    // MELHORADO: HTML mais robusto
     html: `
       <div style="font-family: Arial, sans-serif; text-align: center; color: #333;">
         <h2>Bem-vindo à Favep!</h2>
@@ -31,7 +30,7 @@ async function sendVerificationEmail(to, token) {
 }
 
 async function sendPasswordResetEmail(to, token) {
-  const resetLink = `${process.env.API_BASE_URL}/auth/reset-password?token=${token}`;
+  const resetLink = `${process.env.FRONTEND_URL}/auth/reset-password?token=${token}`;
 
   const mailOptions = {
     from: `"Favep" <${process.env.EMAIL_USER}>`,
@@ -49,4 +48,27 @@ async function sendPasswordResetEmail(to, token) {
   await transporter.sendMail(mailOptions);
 }
 
-module.exports = { sendVerificationEmail, sendPasswordResetEmail };
+async function sendContactEmailToCompany(fromName, fromEmail, message) {
+  const mailOptions = {
+    from: `"${fromName}" <${process.env.EMAIL_USER}>`,
+    to: process.env.EMAIL_USER,
+    replyTo: fromEmail,
+    subject: `Nova Mensagem de Contato de ${fromName}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; color: #333;">
+        <h2>Nova Mensagem de Contato</h2>
+        <p><strong>Nome:</strong> ${fromName}</p>
+        <p><strong>Email:</strong> ${fromEmail}</p>
+        <p><strong>Mensagem:</strong></p>
+        <p style="padding: 10px; border-left: 3px solid #ccc;">${message}</p>
+      </div>
+    `
+  };
+  await transporter.sendMail(mailOptions);
+}
+
+module.exports = {
+  sendVerificationEmail,
+  sendPasswordResetEmail,
+  sendContactEmailToCompany
+};

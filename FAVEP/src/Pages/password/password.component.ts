@@ -1,48 +1,76 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // Importe o FormsModule
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service'; // Importe seu serviço de autenticação
 
 @Component({
   selector: 'app-password',
   standalone: true,
-  imports: [CommonModule, FormsModule], // Adicione CommonModule e FormsModule aqui
+  imports: [CommonModule, FormsModule],
   templateUrl: './password.component.html',
   styleUrls: ['./password.component.css']
 })
-export class PasswordComponent {
-  // Propriedades para vincular aos campos do formulário
+export class PasswordComponent implements OnInit {
   senha = '';
   confirmarSenha = '';
   mensagemErro = '';
   mensagemSucesso = '';
+  token: string | null = null;
+  
+  // Determina se a ação é de verificação de e-mail ou redefinição de senha
+  isVerificationFlow: boolean = false;
 
-  constructor() { }
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private authService: AuthService
+  ) { }
 
-  // Função chamada ao enviar o formulário
+  ngOnInit(): void {
+    // Captura o token da URL
+    this.route.queryParamMap.subscribe(params => {
+      this.token = params.get('token');
+    });
+
+    // Verifica a URL para determinar o fluxo
+    this.isVerificationFlow = this.router.url.includes('verify-email');
+  }
+
   onSubmit(): void {
-    // Limpa mensagens anteriores
     this.mensagemErro = '';
     this.mensagemSucesso = '';
 
-    // 1. Verifica se os campos estão preenchidos
+    if (!this.token) {
+      this.mensagemErro = 'Token inválido ou ausente. Por favor, use o link enviado para o seu e-mail.';
+      return;
+    }
+
     if (!this.senha || !this.confirmarSenha) {
       this.mensagemErro = 'Por favor, preencha ambos os campos de senha.';
       return;
     }
 
-    // 2. Verifica se as senhas são iguais
     if (this.senha !== this.confirmarSenha) {
       this.mensagemErro = 'As senhas não coincidem. Tente novamente.';
       return;
     }
-
-    // 3. Se tudo estiver correto, prossiga com a lógica
-    // (Aqui você chamaria seu serviço para salvar a nova senha no backend)
-    console.log('Senhas coincidem. Enviando para o backend...');
-    this.mensagemSucesso = 'Senha definida com sucesso!';
     
-    // Opcional: Limpar os campos após o sucesso
-    // this.senha = '';
-    // this.confirmarSenha = '';
+    // Escolhe qual método do serviço chamar com base no fluxo
+    const apiCall = this.isVerificationFlow
+      ? this.authService.verifyAndSetPassword(this.token, this.senha, this.confirmarSenha)
+      : this.authService.resetPassword(this.token, this.senha, this.confirmarSenha);
+
+    apiCall.subscribe({
+      next: (response) => {
+        this.mensagemSucesso = `${response.message} Você será redirecionado para o login.`;
+        setTimeout(() => {
+          this.router.navigate(['/home'], { queryParams: { openLogin: 'true' } });
+        }, 3000); // Redireciona após 3 segundos
+      },
+      error: (err) => {
+        this.mensagemErro = err.error?.error || 'Ocorreu um erro. Verifique seu token e tente novamente.';
+      }
+    });
   }
 }

@@ -6,8 +6,12 @@ export interface Usuario {
   email: string;
   telefone?: string;
   fotoPerfil?: string;
-  senha?: string; 
-  plano?: string;
+  senha?: string;
+  emailVerified?: boolean;
+  verificationToken?: string;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
+  //planos?: PlanosMercadoPago[];
 }
 
 export interface Propriedade {
@@ -37,6 +41,16 @@ export interface Financeiro { // Renomeado de Movimentacao
   descricao: string;
   valor: number;
   data: Date | string; // Permitir string para facilitar o binding de formulários
-  categoria?: string;
   propriedade?: Propriedade; // Opcional para dados aninhados
+}
+
+export interface PlanosMercadoPago {
+  id: string;
+  status: string;
+  tipo: string;
+  valor: number;
+  dataAssinatura: Date | string;
+  metodoPagamento: string;
+  usuarioId: string;
+  idAssinaturaExterna?: string;
 }

@@ -298,17 +298,7 @@
               <option *ngFor="let prop of propriedades" [value]="prop.id">{{prop.nomepropriedade}}</option>
             </select>
           </div>
-          <div class="form-group" *ngIf="financeiroEditado.tipo === 'despesa'">
-            <label for="financialCategory">Categoria </label>
-            <select id="financialCategory" [(ngModel)]="financeiroEditado.categoria" name="financialCategory">
-              <option value="">Nenhuma</option>
-              <option value="Insumos">Insumos</option>
-              <option value="Mão de Obra">Mão de Obra</option>
-              <option value="Manutenção">Manutenção</option>
-              <option value="Outros">Outros</option>
-            </select>
           </div>
-        </div>
 
         <div class="form-actions">
           <button type="button" class="btn-cancel" (click)="fecharModal()">Cancelar</button>
