@@ -1,0 +1,96 @@
+<section class="pricing-table-section">
+  <div class="pricing-header">
+    <h2>Compare nossos planos e escolha o ideal para você</h2>
+    <p>Todos os planos são projetados para o seu sucesso. Encontre o que melhor se adapta à sua necessidade.</p>
+  </div>
+
+  <div class="table-container">
+    <table class="pricing-table">
+            <thead>
+        <tr>
+          <th class="feature-header">Recursos</th>
+          <th>
+            <h3>Semanal</h3>
+            <div class="price">Free</div>
+            <span class="period">por semana</span>
+            <button class="btn-assinar" (click)="handleSubscription({ tipo: 'Semanal', valor: 00 }, $event)">Assinar Agora</button>
+          </th>
+          <th>
+            <h3>Mensal</h3>
+            <div class="price">R$ 500,00</div>
+            <span class="period">por mês</span>
+            <button class="btn-assinar" (click)="handleSubscription({ tipo: 'Mensal', valor: 500 }, $event)">Assinar Agora</button>
+          </th>
+          <th>
+            <h3>Trimestral</h3>
+            <div class="price">R$ 5.400,00</div>
+            <span class="period">/mês</span>
+            <button class="btn-assinar" (click)="handleSubscription({ tipo: 'Trimestral', valor: 5400 }, $event)">Assinar Agora</button>
+          </th>
+          <th>
+            <h3>Semestral</h3>
+            <div class="price">R$ 9.900,00</div>
+            <span class="period">/mês</span>
+            <button class="btn-assinar" (click)="handleSubscription({ tipo: 'Semestral', valor: 9900 }, $event)">Assinar Agora</button>
+          </th>
+          <th>
+            <h3>Anual</h3>
+            <div class="price">R$ 16.800,00</div>
+            <span class="period">/mês</span>
+            <button class="btn-assinar" (click)="handleSubscription({ tipo: 'Anual', valor: 16800 }, $event)">Assinar Agora</button>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="feature-name">Acesso completo à plataforma</td>
+          <td><i class="fas fa-check check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td class="featured"><i class="fas fa-check check"></i></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Planilhas de gerenciamento</td>
+          <td><i class="fas fa-check check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td class="featured"><i class="fas fa-check check"></i></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Estatísticas detalhadas</td>
+          <td><i class="fas fa-check check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td class="featured"><i class="fas fa-check check"></i></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Relatórios personalizados</td>
+          <td><i class="fas fa-check check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td class="featured"><i class="fas fa-check check"></i></td>
+        </tr>
+         <tr>
+          <td class="feature-name">Suporte prioritário</td>
+          <td><i class="fas fa-minus no-check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td class="featured"><i class="fas fa-check check"></i></td>
+        </tr>
+        <tr>
+          <td class="feature-name">Suporte 24/7</td>
+          <td><i class="fas fa-minus no-check"></i></td>
+          <td><i class="fas fa-minus no-check"></i></td>
+          <td><i class="fas fa-minus no-check"></i></td>
+          <td><i class="fas fa-check check"></i></td>
+          <td class="featured"><i class="fas fa-rocket check premium-feature"></i></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
