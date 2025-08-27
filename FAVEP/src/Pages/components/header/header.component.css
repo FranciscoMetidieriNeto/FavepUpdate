@@ -1,0 +1,58 @@
+/* CSS focado apenas na aparência do header, sem posicionamento de grid */
+.dashboard-header {
+  background-color: #2c3e50;
+  color: white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  position: relative; /* Adicionado para garantir o z-index */
+  z-index: 100;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-family: 'Merriweather', serif;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.header-logo-img {
+  height: 2.5rem;
+  width: auto;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #27ae60;
+}
+
+.menu-toggle {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.8rem;
+  cursor: pointer;
+  display: none; /* Escondido por padrão em telas grandes */
+}
+
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block; /* Aparece em telas menores */
+  }
+}

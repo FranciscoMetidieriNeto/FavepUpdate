@@ -1,0 +1,50 @@
+/* CSS focado apenas na aparência do menu */
+.main-menu {
+  background-color: #34495e;
+  color: white;
+  padding: 20px 0;
+  height: 100%; /* Faz o menu ocupar toda a altura da célula do grid */
+  overflow-y: auto;
+  transition: transform 0.3s ease-in-out;
+  z-index: 90;
+}
+
+.main-menu a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  text-decoration: none;
+  padding: 15px 25px;
+  transition: background-color 0.3s ease;
+  white-space: nowrap;
+  border-left: 4px solid transparent;
+}
+
+.main-menu a:hover {
+  background-color: #2c3e50;
+}
+
+.main-menu a.active {
+  background-color: #1a252f;
+  border-left-color: #27ae60;
+}
+
+.main-menu .material-symbols-outlined {
+  font-size: 24px;
+}
+
+@media (max-width: 768px) {
+  .main-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    transform: translateX(-100%); /* Escondido por padrão */
+  }
+  
+  /* Se o menu tiver a classe .open, ele aparece */
+  :host-context(.menu-aberto-mobile) .main-menu {
+    transform: translateX(0);
+  }
+}

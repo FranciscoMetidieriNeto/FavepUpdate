@@ -7,6 +7,10 @@ import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
 import { Subscription } from 'rxjs';
 
+// Alterado: Adicionado o import para os novos componentes
+import { HeaderComponent } from '../components/header/header.component';
+import { MenuComponent } from '../components/menu/menu.component';
+
 // --- SERVIÇOS E MODELOS ---
 import { DashboardDataService } from '../../services/dashboard-data.service';
 import { AuthService } from '../../services/auth.service';
@@ -20,13 +24,16 @@ registerLocaleData(localePt);
   imports: [
     CommonModule,
     FormsModule, // ✅ Adicionar FormsModule
-    RouterLink
+    RouterLink,
+    HeaderComponent,
+    MenuComponent
   ],
   templateUrl: './estatistica.component.html',
   styleUrls: ['./estatistica.component.css']
 })
 export class EstatisticaComponent implements OnInit, OnDestroy {
   menuAberto = false;
+  
 
   @ViewChild('produtividadeChart', { static: true }) produtividadeChart!: ElementRef<HTMLCanvasElement>;
   @ViewChild('financeiroChart', { static: true }) financeiroChart!: ElementRef<HTMLCanvasElement>;

@@ -10,6 +10,10 @@ import { Subscription } from 'rxjs';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
+// Alterado: Adicionado o import para os novos componentes com o caminho correto (../../)
+import { HeaderComponent } from '../../components/header/header.component';
+import { MenuComponent } from '../../components/menu/menu.component';
+
 // --- SERVIÇOS E MODELOS ---
 import { DashboardDataService } from '../../../services/dashboard-data.service';
 import { AuthService } from '../../../services/auth.service';
@@ -23,7 +27,9 @@ registerLocaleData(localePt);
   imports: [
     RouterLink,
     CommonModule,
-    FormsModule
+    FormsModule, 
+    HeaderComponent, 
+    MenuComponent
   ],
   providers: [DatePipe],
   templateUrl: './relatorio.component.html',

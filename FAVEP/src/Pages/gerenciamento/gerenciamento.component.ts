@@ -13,6 +13,12 @@ import { ProducaoService } from '../../services/producao.service';
 import { MovimentacaoService } from '../../services/movimentacao.service';
 import { AuthService } from '../../services/auth.service';
 
+// --- IMPORTE OS COMPONENTES COM O CAMINHO CORRETO ---
+// Caminho CORRETO para os imports
+import { HeaderComponent } from '../components/header/header.component';
+import { MenuComponent } from '../components/menu/menu.component';
+
+
 // --- MODELOS CORRIGIDOS ---
 import {
   Usuario,
@@ -26,7 +32,7 @@ registerLocaleData(localePt);
 @Component({
   selector: 'app-gerenciamento',
   standalone: true,
-  imports: [RouterModule, CommonModule, FormsModule],
+  imports: [RouterModule, CommonModule, FormsModule,  HeaderComponent, MenuComponent],
   providers: [DatePipe],
   templateUrl: './gerenciamento.component.html',
   styleUrl: './gerenciamento.component.css',
