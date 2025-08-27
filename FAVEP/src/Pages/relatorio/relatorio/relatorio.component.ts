@@ -10,10 +10,13 @@ import { Subscription } from 'rxjs';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
+<<<<<<< HEAD
 // Alterado: Adicionado o import para os novos componentes com o caminho correto (../../)
 import { HeaderComponent } from '../../components/header/header.component';
 import { MenuComponent } from '../../components/menu/menu.component';
 
+=======
+>>>>>>> 0dd69904671181de7dffdc11f9742844aae4d1c9
 // --- SERVIÇOS E MODELOS ---
 import { DashboardDataService } from '../../../services/dashboard-data.service';
 import { AuthService } from '../../../services/auth.service';
@@ -27,9 +30,13 @@ registerLocaleData(localePt);
   imports: [
     RouterLink,
     CommonModule,
+<<<<<<< HEAD
     FormsModule, 
     HeaderComponent, 
     MenuComponent
+=======
+    FormsModule
+>>>>>>> 0dd69904671181de7dffdc11f9742844aae4d1c9
   ],
   providers: [DatePipe],
   templateUrl: './relatorio.component.html',

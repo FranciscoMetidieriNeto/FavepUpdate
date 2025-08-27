@@ -8,9 +8,14 @@ import { ParceirosComponent } from '../Pages/parceiros/parceiros.component';
 import { EstatisticaComponent } from '../Pages/estatistica/estatistica.component';
 import { RelatorioComponent } from '../Pages/relatorio/relatorio/relatorio.component';
 import { GerenciamentoComponent } from '../Pages/gerenciamento/gerenciamento.component';
+<<<<<<< HEAD
 import { UsuarioComponent } from '../Pages/Auth/usuario/usuario.component'; 
 import { HeaderComponent } from '../Pages/components/header/header.component';
 import { MenuComponent } from '../Pages/components/menu/menu.component';
+=======
+import { UsuarioComponent } from '../Pages/Auth/usuario/usuario.component';
+
+>>>>>>> 0dd69904671181de7dffdc11f9742844aae4d1c9
 // --- ATUALIZAÇÃO ---
 // 1. Importe o PasswordComponent
 import { PasswordComponent } from '../Pages/password/password.component';

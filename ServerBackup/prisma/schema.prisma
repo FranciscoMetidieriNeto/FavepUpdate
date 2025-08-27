@@ -3,7 +3,11 @@ generator client {
 }
 
 datasource db {
+<<<<<<< HEAD
   provider = "sqlite"
+=======
+  provider = "postgresql"
+>>>>>>> 0dd69904671181de7dffdc11f9742844aae4d1c9
   url      = env("DATABASE_URL")
 }
 
@@ -72,4 +76,8 @@ model PlanosMercadoPago {
   usuario             usuario  @relation(fields: [usuarioId], references: [id])
 
   @@map("planos_mercado_pago")
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 0dd69904671181de7dffdc11f9742844aae4d1c9

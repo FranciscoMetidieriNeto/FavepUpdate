@@ -4,10 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 
+<<<<<<< HEAD
 // Alterado: Adicionado o import para os novos componentes com o caminho correto (../../)
 import { HeaderComponent } from '../../components/header/header.component';
 import { MenuComponent } from '../../components/menu/menu.component';
 
+=======
+>>>>>>> 0dd69904671181de7dffdc11f9742844aae4d1c9
 // Imports dos seus serviços e modelos
 import { AuthService } from '../../../services/auth.service';
 import { UsuarioService } from '../../../services/usuario.service';
@@ -21,9 +24,13 @@ import { NgxMaskDirective, NgxMaskPipe } from 'ngx-mask';
     CommonModule,
     FormsModule,
     RouterLink,
+<<<<<<< HEAD
     NgxMaskPipe,
     HeaderComponent, 
     MenuComponent 
+=======
+    NgxMaskPipe, 
+>>>>>>> 0dd69904671181de7dffdc11f9742844aae4d1c9
   ],
   providers: [DatePipe],
   templateUrl: './usuario.component.html',

@@ -1,6 +1,10 @@
 .pricing-table-section {
     width: 100%;
+<<<<<<< HEAD
     max-width: 1200px;
+=======
+    max-width: 1100px;
+>>>>>>> 0dd69904671181de7dffdc11f9742844aae4d1c9
     margin: 0 auto;
     text-align: center;
 }
@@ -99,9 +103,14 @@
 }
 
 .btn-assinar:hover {
+<<<<<<< HEAD
     background-color: #13c300;
     border-color: #9ca3af;
     color: #fff;
+=======
+    background-color: #f3f4f6;
+    border-color: #9ca3af;
+>>>>>>> 0dd69904671181de7dffdc11f9742844aae4d1c9
 }
 
 

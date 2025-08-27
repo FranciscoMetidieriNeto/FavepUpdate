@@ -7,10 +7,13 @@ import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
 import { Subscription } from 'rxjs';
 
+<<<<<<< HEAD
 // Alterado: Adicionado o import para os novos componentes
 import { HeaderComponent } from '../components/header/header.component';
 import { MenuComponent } from '../components/menu/menu.component';
 
+=======
+>>>>>>> 0dd69904671181de7dffdc11f9742844aae4d1c9
 // --- SERVIÇOS E MODELOS ---
 import { DashboardDataService } from '../../services/dashboard-data.service';
 import { AuthService } from '../../services/auth.service';
@@ -24,16 +27,23 @@ registerLocaleData(localePt);
   imports: [
     CommonModule,
     FormsModule, // ✅ Adicionar FormsModule
+<<<<<<< HEAD
     RouterLink,
     HeaderComponent,
     MenuComponent
+=======
+    RouterLink
+>>>>>>> 0dd69904671181de7dffdc11f9742844aae4d1c9
   ],
   templateUrl: './estatistica.component.html',
   styleUrls: ['./estatistica.component.css']
 })
 export class EstatisticaComponent implements OnInit, OnDestroy {
   menuAberto = false;
+<<<<<<< HEAD
   
+=======
+>>>>>>> 0dd69904671181de7dffdc11f9742844aae4d1c9
 
   @ViewChild('produtividadeChart', { static: true }) produtividadeChart!: ElementRef<HTMLCanvasElement>;
   @ViewChild('financeiroChart', { static: true }) financeiroChart!: ElementRef<HTMLCanvasElement>;
