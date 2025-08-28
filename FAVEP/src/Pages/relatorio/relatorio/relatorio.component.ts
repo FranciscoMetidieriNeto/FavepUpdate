@@ -10,13 +10,10 @@ import { Subscription } from 'rxjs';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
-<<<<<<< HEAD
 // Alterado: Adicionado o import para os novos componentes com o caminho correto (../../)
 import { HeaderComponent } from '../../components/header/header.component';
 import { MenuComponent } from '../../components/menu/menu.component';
 
-=======
->>>>>>> 0dd69904671181de7dffdc11f9742844aae4d1c9
 // --- SERVIÇOS E MODELOS ---
 import { DashboardDataService } from '../../../services/dashboard-data.service';
 import { AuthService } from '../../../services/auth.service';
@@ -30,13 +27,9 @@ registerLocaleData(localePt);
   imports: [
     RouterLink,
     CommonModule,
-<<<<<<< HEAD
-    FormsModule, 
-    HeaderComponent, 
+    FormsModule,
+    HeaderComponent,
     MenuComponent
-=======
-    FormsModule
->>>>>>> 0dd69904671181de7dffdc11f9742844aae4d1c9
   ],
   providers: [DatePipe],
   templateUrl: './relatorio.component.html',
@@ -47,21 +40,21 @@ export class RelatorioComponent implements OnInit, OnDestroy {
   menuAberto = false;
   usuarioNome: string = '';
   usuarioFoto: string = 'https://placehold.co/40x40/aabbcc/ffffff?text=User';
-  
+
   // --- Listas de Dados Brutos ---
   propriedades: Propriedade[] = [];
   private todasProducoes: Producao[] = [];
   private todasMovimentacoes: Financeiro[] = [];
-  
+
   // --- Controles de Filtro ---
   selectedPropertyId: string = 'todos';
   startDate: string = '';
   endDate: string = '';
   selectedCropType: string = 'todos';
   reportType: 'productivity' | 'financial' | 'crop_production' = 'productivity';
-  
+
   availableCropTypes: { value: string, text: string }[] = [];
-  
+
   @ViewChild('reportChartCanvas', { static: true }) reportChartCanvas!: ElementRef<HTMLCanvasElement>;
   reportChart: Chart | null = null;
   private userSubscription: Subscription | undefined;
@@ -94,10 +87,10 @@ export class RelatorioComponent implements OnInit, OnDestroy {
         this.propriedades = propriedades;
         this.todasProducoes = producoes;
         this.todasMovimentacoes = movimentacoes.map(rec => ({ ...rec, data: new Date(rec.data) }));
-        
+
         const uniqueCropTypes = new Set<string>(this.todasProducoes.map(prod => prod.cultura));
         this.availableCropTypes = Array.from(uniqueCropTypes).sort().map(type => ({ value: type, text: type }));
-        
+
         this.gerarRelatorio(); // Gera o relatório inicial com todos os dados
       },
       error: (err) => console.error('Erro ao carregar dados iniciais para o relatório:', err)
@@ -117,7 +110,7 @@ export class RelatorioComponent implements OnInit, OnDestroy {
         filteredProducoes = filteredProducoes.filter(prod => prod.propriedadeId === this.selectedPropertyId);
         filteredMovimentacoes = filteredMovimentacoes.filter(mov => mov.propriedadeId === this.selectedPropertyId);
     }
-    
+
     if (this.reportType !== 'financial' && this.selectedCropType !== 'todos') {
         filteredProducoes = filteredProducoes.filter(prod => prod.cultura === this.selectedCropType);
     }
@@ -127,7 +120,7 @@ export class RelatorioComponent implements OnInit, OnDestroy {
             const movDate = new Date(mov.data);
             const start = this.startDate ? new Date(this.startDate + 'T00:00:00') : null; // Adiciona T00:00:00 para evitar problemas de fuso
             const end = this.endDate ? new Date(this.endDate + 'T23:59:59') : null; // Adiciona T23:59:59 para incluir o dia todo
-            
+
             if (start && movDate < start) return false;
             if (end && movDate > end) return false;
             return true;
@@ -208,7 +201,7 @@ export class RelatorioComponent implements OnInit, OnDestroy {
     }
 
     document.body.classList.add('generating-pdf');
-    
+
     const canvas = await html2canvas(reportContentElement, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
 
     document.body.classList.remove('generating-pdf');
@@ -227,7 +220,7 @@ export class RelatorioComponent implements OnInit, OnDestroy {
 
     const dataAtual = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
     const nomeArquivo = `Relatorio_FAVEP_${this.reportType}_${dataAtual}.pdf`;
-    
+
     pdf.save(nomeArquivo);
   }
 

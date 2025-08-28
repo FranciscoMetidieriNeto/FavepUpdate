@@ -7,13 +7,10 @@ import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
 import { Subscription } from 'rxjs';
 
-<<<<<<< HEAD
 // Alterado: Adicionado o import para os novos componentes
 import { HeaderComponent } from '../components/header/header.component';
 import { MenuComponent } from '../components/menu/menu.component';
 
-=======
->>>>>>> 0dd69904671181de7dffdc11f9742844aae4d1c9
 // --- SERVIÇOS E MODELOS ---
 import { DashboardDataService } from '../../services/dashboard-data.service';
 import { AuthService } from '../../services/auth.service';
@@ -27,23 +24,15 @@ registerLocaleData(localePt);
   imports: [
     CommonModule,
     FormsModule, // ✅ Adicionar FormsModule
-<<<<<<< HEAD
     RouterLink,
     HeaderComponent,
     MenuComponent
-=======
-    RouterLink
->>>>>>> 0dd69904671181de7dffdc11f9742844aae4d1c9
   ],
   templateUrl: './estatistica.component.html',
   styleUrls: ['./estatistica.component.css']
 })
 export class EstatisticaComponent implements OnInit, OnDestroy {
   menuAberto = false;
-<<<<<<< HEAD
-  
-=======
->>>>>>> 0dd69904671181de7dffdc11f9742844aae4d1c9
 
   @ViewChild('produtividadeChart', { static: true }) produtividadeChart!: ElementRef<HTMLCanvasElement>;
   @ViewChild('financeiroChart', { static: true }) financeiroChart!: ElementRef<HTMLCanvasElement>;
@@ -56,7 +45,7 @@ export class EstatisticaComponent implements OnInit, OnDestroy {
   private todasProducoes: Producao[] = [];
   private todasMovimentacoes: Financeiro[] = [];
   propriedades: Propriedade[] = [];
-  
+
   // ✅ NOVO: Controle de Filtro
   selectedPropertyId: string = 'todos';
 
@@ -103,7 +92,7 @@ export class EstatisticaComponent implements OnInit, OnDestroy {
         this.propriedades = data.propriedades;
         this.todasProducoes = data.producoes;
         this.todasMovimentacoes = data.movimentacoes;
-        
+
         // Processa os dados pela primeira vez (visão geral)
         this.processarDadosEstatisticos();
       },
@@ -125,7 +114,7 @@ export class EstatisticaComponent implements OnInit, OnDestroy {
       movimentacoesFiltradas = this.todasMovimentacoes.filter(m => m.propriedadeId === this.selectedPropertyId);
       propriedadesFiltradas = this.propriedades.filter(p => p.id === this.selectedPropertyId);
     }
-    
+
     // --- Cálculos para os Cards de Resumo ---
     this.totalPropriedades = propriedadesFiltradas.length;
     this.areaTotal = propriedadesFiltradas.reduce((sum, prop) => sum + prop.area_ha, 0);
@@ -156,7 +145,7 @@ export class EstatisticaComponent implements OnInit, OnDestroy {
         else if (mov.tipo === 'despesa') this.dadosDespesasMensais[month] += mov.valor;
       }
     });
-    
+
     // Recria os gráficos com os novos dados
     this.criarGraficos();
   }

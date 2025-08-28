@@ -1,11 +1,5 @@
-<<<<<<< HEAD
-<!-- 
-  CORREÇÃO: Removido o aninhamento de 'dashboard-container' e movido todo o conteúdo 
-  da página (filtros, cards de resumo e gráficos) para dentro da tag <main class="content">.
--->
 <div class="dashboard-container">
 
-  <!-- Header e Menu (permanecem no lugar) -->
   <app-header 
     [usuarioNome]="usuarioNome" 
     [usuarioFoto]="usuarioFoto"
@@ -14,44 +8,8 @@
   
   <app-menu [menuAberto]="menuAberto"></app-menu>
 
-  <!-- A tag <main> agora contém todo o conteúdo da sua página de estatísticas -->
   <main class="content">
     
-=======
-<div class="dashboard-container">
-  <header class="dashboard-header">
-    <button class="menu-toggle" aria-label="Abrir menu" (click)="alternarMenu()">
-      <i class="fas fa-bars"></i>
-    </button>
-    <h1>
-      <img src="assets/img/FAVEP_LOGO_nobg.png" alt="Logo FAVEP" class="header-logo-img"> FAVEP - Gestão Agronômica
-    </h1>
-    <div class="user-info">
-      <span>Olá, {{ usuarioNome }}</span>
-      <img [src]="usuarioFoto" [alt]="'Foto de ' + usuarioNome" class="user-avatar">
-    </div>
-  </header>
-
-  <nav class="main-menu" [class.open]="menuAberto">
-    <a routerLink="/home" routerLinkActive="active">
-      <span class="material-symbols-outlined">home</span> Home
-    </a>
-    <a routerLink="/gerenciamento" routerLinkActive="active">
-      <span class="material-symbols-outlined">dashboard</span> Gerenciamento
-    </a>
-    <a routerLink="/estatistica" routerLinkActive="active">
-      <span class="material-symbols-outlined">monitoring</span> Estatística
-    </a>
-    <a routerLink="/relatorio" routerLinkActive="active">
-      <span class="material-symbols-outlined">overview</span> Relatório geral
-    </a>
-    <a routerLink="/usuario" routerLinkActive="active">
-      <span class="material-symbols-outlined">account_circle</span> Configuração
-    </a>
-  </nav>
-
-  <main class="dashboard-content">
->>>>>>> 0dd69904671181de7dffdc11f9742844aae4d1c9
     <div class="filtros-container">
       <div class="filtro-group">
         <label for="filtro-propriedade">Filtrar por Propriedade:</label>
@@ -93,12 +51,5 @@
         <canvas #financeiroChart></canvas>
       </div>
     </div>
-<<<<<<< HEAD
 
-  </main> <!-- A tag <main> agora fecha corretamente aqui -->
-
-</div>
-=======
-  </main>
-</div>
->>>>>>> 0dd69904671181de7dffdc11f9742844aae4d1c9
+  </main> </div>
