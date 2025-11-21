@@ -1,92 +1,143 @@
 <app-menu-lateral></app-menu-lateral>
 
 <main class="main-content">
-  <div class="card-adduser">
-      <h4><i class="fas fa-user-plus"></i> Adicionar Novo Usuário</h4>
+  
+    <div class="content-header">
+       <nav class="main-nav">
+         <button [class.active]="abaAtiva === 'adicionar'" (click)="selecionarAba('adicionar')">
+           <i class="fas fa-user-plus"></i> Adicionar Colaborador
+         </button>
+         <button [class.active]="abaAtiva === 'visualizar'" (click)="selecionarAba('visualizar')">
+           <i class="fas fa-users"></i> Visualizar Colaboradores
+         </button>
+       </nav>
+    </div>
 
-      <form #userForm="ngForm" (ngSubmit)="addUser(userForm)" novalidate>
-          <div class="form-row">
-              <div class="form-group">
-                  <label for="newUserEmail">E-mail do Usuário</label>
-                  <input type="email" id="newUserEmail" name="email" [(ngModel)]="newUser.email" placeholder="nome&#64;empresa.com.br" required email
-                         #emailInput="ngModel" [class.ng-invalid]="emailInput.invalid && (emailInput.dirty || emailInput.touched)">
+    <section *ngIf="abaAtiva === 'adicionar'" class="content-section">
+      <div class="card-adduser">
+          <h4><i class="fas fa-user-plus"></i> Convidar Novo Colaborador</h4>
 
-                  <div *ngIf="emailInput.invalid && (emailInput.dirty || emailInput.touched)" class="validation-message">
-                      <div *ngIf="emailInput.errors?.['required']">
-                          O e-mail é obrigatório.
-                      </div>
-                      <div *ngIf="emailInput.errors?.['email']">
-                          Por favor, insira um e-mail válido (ex: nome&#64;empresa.com.br).
+          <form #userForm="ngForm" (ngSubmit)="addUser(userForm)" novalidate>
+              <div class="form-row">
+                  <div class="form-group">
+                      <label for="newUserEmail">E-mail do Usuário</label>
+                      <input type="email" id="newUserEmail" name="email" [(ngModel)]="newUser.email" placeholder="nome&#64;empresa.com.br" required email
+                            #emailInput="ngModel" [class.ng-invalid]="emailInput.invalid && (emailInput.dirty || emailInput.touched)">
+
+                      <div *ngIf="emailInput.invalid && (emailInput.dirty || emailInput.touched)" class="validation-message">
+                          <div *ngIf="emailInput.errors?.['required']">
+                              O e-mail é obrigatório.
+                          </div>
+                          <div *ngIf="emailInput.errors?.['email']">
+                              Por favor, insira um e-mail válido (ex: nome&#64;empresa.com.br).
+                          </div>
                       </div>
                   </div>
               </div>
-          </div>
 
-          <div class="form-row">
-              <div class="form-group">
-                  <label for="accessLevel">Nível de Acesso</label>
-                   <select id="accessLevel" name="accessLevel" [(ngModel)]="newUser.accessLevel" required
-                          #levelSelect="ngModel" [class.ng-invalid]="levelSelect.invalid && (levelSelect.dirty || levelSelect.touched)">
-                      <option value="" disabled selected>Selecione um nível</option>
-                      <option value="GERENTE">Gerente</option>
-                      <option value="FUNCIONARIO">Funcionário</option>
-                    </select>
-                  <div *ngIf="levelSelect.invalid && (levelSelect.dirty || levelSelect.touched)" class="validation-message">
-                      O nível de acesso é obrigatório.
+              <div class="form-row">
+                  <div class="form-group">
+                      <label for="accessLevel">Nível de Acesso</label>
+                      <select id="accessLevel" name="accessLevel" [(ngModel)]="newUser.accessLevel" required
+                              #levelSelect="ngModel" [class.ng-invalid]="levelSelect.invalid && (levelSelect.dirty || levelSelect.touched)">
+                          <option value="" disabled selected>Selecione um nível</option>
+                          <option value="GERENTE">💼 Gerente</option>
+                          <option value="FUNCIONARIO">👤 Funcionário</option>
+                        </select>
+                      <div *ngIf="levelSelect.invalid && (levelSelect.dirty || levelSelect.touched)" class="validation-message">
+                          O nível de acesso é obrigatório.
+                      </div>
                   </div>
               </div>
-          </div>
 
-          <div class="form-row" *ngIf="availableProperties.length > 0">
-            <div class="form-group full-width">
-                <label class="section-label">Liberar Acesso às Propriedades (Opcional)</label>
-                <div class="properties-container">
-                    <div *ngFor="let prop of availableProperties" class="property-checkbox">
-                        <input type="checkbox"
-                               [id]="prop.id"
-                               [name]="'prop_' + prop.id"
-                               [(ngModel)]="selectedProperties[prop.id]">
-                        <label [for]="prop.id">{{ prop.nomepropriedade }}</label>
+              <div class="form-row" *ngIf="availableProperties.length > 0">
+                <div class="form-group full-width">
+                    <label class="section-label">Liberar Acesso às Propriedades (Opcional)</label>
+                    <div class="properties-container">
+                        <div *ngFor="let prop of availableProperties" class="property-checkbox">
+                            <input type="checkbox"
+                                   [id]="prop.id"
+                                   [name]="'prop_' + prop.id"
+                                   [(ngModel)]="selectedProperties[prop.id]">
+                            <label [for]="prop.id">{{ prop.nomepropriedade }}</label>
+                        </div>
                     </div>
                 </div>
-            </div>
-          </div>
-
-          <div class="form-row">
-              <div class="form-group-button">
-                  <button type="submit" class="add-user-btn" [disabled]="!userForm.form.valid">
-                      <i class="fas fa-check"></i> Criar Usuário
-                  </button>
               </div>
-          </div>
 
-          <div *ngIf="statusMessage" [class.success]="statusMessage.includes('sucesso')" [class.error]="statusMessage.includes('Erro') || statusMessage.includes('erro')" class="status-message">
-              {{ statusMessage }}
-          </div>
-      </form>
-  </div>
+              <div class="form-row">
+                  <div class="form-group-button">
+                      <button type="submit" class="add-user-btn" [disabled]="!userForm.form.valid">
+                          <i class="fas fa-check"></i> Enviar Convite
+                      </button>
+                  </div>
+              </div>
 
-  <div class="access-info-card">
-    <h4><i class="fas fa-key"></i> Descrição dos Níveis de Acesso</h4>
-    <div class="access-table-container">
-        <table>
-            <thead>
+              <div *ngIf="statusMessage" [class.success]="statusMessage.includes('sucesso')" [class.error]="statusMessage.includes('Erro') || statusMessage.includes('erro')" class="status-message">
+                  {{ statusMessage }}
+              </div>
+          </form>
+      </div>
+      
+      <div class="access-info-card">
+        <h4><i class="fas fa-key"></i> Descrição dos Níveis de Acesso</h4>
+        <div class="access-table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nível de Acesso</th>
+                        <th>Permissão de Acesso</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Gerente</td>
+                        <td>Acesso similar ao Administrador para gestão operacional, mas sem poder gerenciar assinaturas ou excluir o Admin principal.</td>
+                    </tr>
+                    <tr>
+                        <td>Funcionário</td>
+                        <td>Acesso a Visualização de dados, Geração de Relatórios e funcionalidades básicas.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+      </div>
+    </section>
+
+    <section *ngIf="abaAtiva === 'visualizar'" class="content-section">
+      <div class="card-viewusers">
+          <div class="table-container">
+            <table>
+              <thead>
                 <tr>
-                    <th>Nível de Acesso</th>
-                    <th>Permissão de Acesso</th>
+                  <th>E-mail</th>
+                  <th>Função</th>
+                  <th>Propriedades Acessíveis</th>
                 </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Gerente</td>
-                    <td>Acesso similar ao Administrador para gestão operacional, mas sem poder gerenciar assinaturas ou excluir o Admin principal.</td>
+              </thead>
+              <tbody>
+                <tr *ngIf="isLoadingUsers">
+                  <td colspan="3" class="no-data">Carregando colaboradores...</td>
                 </tr>
-                <tr>
-                    <td>Funcionário</td>
-                    <td>Acesso a Visualização de dados, Geração de Relatórios e funcionalidades básicas.</td>
+                <tr *ngIf="!isLoadingUsers && subUsers.length === 0">
+                  <td colspan="3" class="no-data">Nenhum colaborador encontrado.</td>
                 </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
+                <tr *ngFor="let user of subUsers; trackBy: trackById">
+                  <td>{{ user.email }}</td>
+                  <td>
+                    <span class="badge-acesso" 
+                          [ngClass]="{
+                            'badge-gerente': user.cargo === 'GERENTE',
+                            'badge-funcionario': user.cargo === 'FUNCIONARIO'
+                          }">
+                      {{ user.cargo | titlecase }}
+                    </span>
+                  </td>
+                  <td>{{ getPropriedadesAcessiveis(user) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+      </div>
+    </section>
 </main>

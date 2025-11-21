@@ -1,13 +1,20 @@
+// adicionar-usuario.component.ts (Removendo simulação e refatorando loadSubUsers)
+
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
-import { PropriedadeService } from '../../services/propriedade.service'; // Importação do Service
+import { PropriedadeService } from '../../services/propriedade.service';
 import { Router, RouterLink } from '@angular/router';
-import { Usuario, Propriedade } from '../../models/api.models'; // Importação do Model
-import { Subscription } from 'rxjs';
+import { Usuario, Propriedade } from '../../models/api.models'; 
+import { Subscription, of } from 'rxjs'; // Adicionando 'of' para a simulação
 import { CommonModule } from '@angular/common';
 import { MenuCentralComponent } from "../menu-central/menu-central.component";
 import { MenuLateralComponent } from "../menu-lateral/menu-lateral.component";
+
+// --- NOVO MODELO (Simplificado) ---
+interface SubUsuario extends Usuario {
+  propriedadesAcessiveis?: Propriedade[];
+}
 
 @Component({
   selector: 'app-adicionar-usuario',
@@ -19,21 +26,27 @@ import { MenuLateralComponent } from "../menu-lateral/menu-lateral.component";
 export class AdicionarUsuarioComponent implements OnInit, OnDestroy {
   private userSubscription: Subscription | undefined;
 
+  // --- CONTROLE DE ABAS ---
+  abaAtiva: 'adicionar' | 'visualizar' = 'adicionar';
+  // --- FIM CONTROLE DE ABAS ---
+
   newUser = {
     email: '',
     accessLevel: ''
   };
 
-  // Variáveis para controle das propriedades
   availableProperties: Propriedade[] = [];
-  selectedProperties: { [id: string]: boolean } = {}; // Mapa de seleção: { 'id_123': true, 'id_456': false }
+  selectedProperties: { [id: string]: boolean } = {}; 
 
   statusMessage: string = '';
+  
+  subUsers: SubUsuario[] = [];
+  isLoadingUsers: boolean = false; // Novo: Para loading da tabela
 
   constructor(
     private router: Router,
     private authService: AuthService,
-    private propriedadeService: PropriedadeService // Injeção do serviço
+    private propriedadeService: PropriedadeService
   ) { }
 
   ngOnInit(): void {
@@ -41,7 +54,6 @@ export class AdicionarUsuarioComponent implements OnInit, OnDestroy {
       // Lógica futura se necessário
     });
 
-    // Carrega as propriedades do admin para exibir no formulário
     this.loadProperties();
   }
 
@@ -49,10 +61,65 @@ export class AdicionarUsuarioComponent implements OnInit, OnDestroy {
     this.userSubscription?.unsubscribe();
   }
 
+  // --- MÉTODOS DE CONTROLE ---
+  selecionarAba(aba: 'adicionar' | 'visualizar'): void {
+    this.abaAtiva = aba;
+    if (aba === 'visualizar') {
+      this.loadSubUsers();
+    }
+  }
+
+  loadSubUsers(): void {
+    this.isLoadingUsers = true;
+    
+    // --- LÓGICA DE SIMULAÇÃO (DEVE SER IMPLEMENTADA NO AUTHSERVICE) ---
+    // Simula que os dados do mock são buscados do serviço, AGORA REQUERENDO
+    // APENAS AS PROPRIEDADES JÁ CARREGADAS para popular o mock.
+    
+    // Este é o array de propriedades carregadas que você usou na simulação anterior.
+    const props = this.availableProperties; 
+
+    const mockSubUsers = [
+      { id: 'sub1', nome: 'Gerente Operacional', email: 'gerente.op@favep.com', cargo: 'GERENTE', telefone: '00000000000', senha: 'temp', emailVerified: true, profileCompleted: true, 
+        propriedadesAcessiveis: [props[0]] 
+      },
+      { id: 'sub2', nome: 'Funcionario Campo', email: 'func.campo@favep.com', cargo: 'FUNCIONARIO', telefone: '11111111111', senha: 'temp', emailVerified: true, profileCompleted: true, 
+        propriedadesAcessiveis: [props[1], props[2]] 
+      }
+    ] as SubUsuario[];
+
+    // Simula a chamada Http e o delay
+    of(mockSubUsers)
+        .subscribe(users => {
+            this.subUsers = users.filter(user => user.propriedadesAcessiveis?.length);
+            this.isLoadingUsers = false;
+        });
+    // --- FIM DA LÓGICA DE SIMULAÇÃO ---
+  }
+
+  getPropriedadesAcessiveis(user: SubUsuario): string {
+    const props = user.propriedadesAcessiveis;
+    if (!props || props.length === 0) {
+      return 'Nenhuma propriedade';
+    }
+    // Note: Garantimos que props[i] existe antes de acessar .nomepropriedade
+    return props.map(p => p ? p.nomepropriedade : 'N/A').join(', ');
+  }
+
+  trackById(index: number, item: { id: any }): any {
+    return item.id;
+  }
+  // --- FIM MÉTODOS DE CONTROLE ---
+
+
   loadProperties(): void {
     this.propriedadeService.getPropriedades().subscribe({
       next: (props) => {
         this.availableProperties = props;
+        // Se as propriedades estiverem carregadas e a aba for 'visualizar', carrega os usuários.
+        if (this.abaAtiva === 'visualizar') {
+            this.loadSubUsers();
+        }
       },
       error: (err) => {
         console.error('Erro ao carregar propriedades:', err);
@@ -60,7 +127,6 @@ export class AdicionarUsuarioComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Helper para converter o objeto de seleção em array de IDs
   getSelectedPropertyIds(): string[] {
     return Object.keys(this.selectedProperties).filter(id => this.selectedProperties[id]);
   }
@@ -69,14 +135,14 @@ export class AdicionarUsuarioComponent implements OnInit, OnDestroy {
     if (form.valid) {
       const selectedIds = this.getSelectedPropertyIds();
 
-      // Passamos os IDs selecionados para o serviço
       this.authService.preRegisterSubUser(this.newUser.email, this.newUser.accessLevel, selectedIds)
         .subscribe({
           next: (res) => {
             console.log('Usuário adicionado:', res);
             this.statusMessage = res.message || 'Usuário convidado com sucesso! A senha foi enviada por e-mail.';
             form.resetForm();
-            this.selectedProperties = {}; // Limpa as seleções
+            this.selectedProperties = {};
+            this.loadSubUsers(); // Atualiza a lista
           },
           error: (err) => {
             console.error('Erro ao adicionar usuário:', err);

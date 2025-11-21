@@ -8,39 +8,93 @@
   transition: margin-left 0.3s ease-in-out;
 }
 
+/* --- CABEÇALHO E NAVEGAÇÃO INTERNA (ABAS) --- */
+.content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.main-nav {
+  display: flex;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  overflow-x: auto;
+  white-space: nowrap;
+  flex-grow: 1; /* Faz as abas ocuparem o espaço */
+  max-width: 800px; /* Limita a largura para alinhar com o card */
+  margin: 0 auto;
+}
+
+.main-nav button {
+  flex: 1;
+  min-width: 120px;
+  padding: 1rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #7f8c8d;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.main-nav button:hover {
+  color: #2c3e50;
+  background-color: #f8f9fa;
+}
+
+.main-nav button.active {
+  color: #007aff; /* Azul para destaque da aba ativa */
+  border-bottom: 3px solid #007aff;
+  font-weight: 600;
+  background-color: #d5ebf1;
+}
+
+.main-nav button i {
+  font-size: 1.1rem;
+}
+
+/* --- ESTILOS DO CARD DE ADICIONAR (aba: adicionar) --- */
 .card-adduser {
-  max-width: 800px; /* Reduz um pouco o max-width para melhor foco */
+  max-width: 800px;
   width: 100%;
   margin: 0 auto;
   background-color: #ffffff;
   padding: 30px;
   border-radius: 12px;
-  /* Sombra mais elegante e menos 'dura' */
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e9ecef; /* Adiciona uma borda sutil */
+  border: 1px solid #e9ecef;
   box-sizing: border-box;
 }
 
 .card-adduser h4 {
-  font-weight: 700; /* Mais ousado */
+  font-weight: 700;
   font-size: 1.6rem;
-  color: #212529; /* Alterado: Cor do título para preto quase puro para melhor contraste */
+  color: #212529;
   margin: 0 0 25px 0;
   padding-bottom: 15px;
-  border-bottom: 1px solid #dee2e6; /* Linha divisória mais suave */
+  border-bottom: 1px solid #dee2e6;
   display: flex;
   align-items: center;
 }
 
 .card-adduser h4 i {
   margin-right: 10px;
-  color: #007bff; /* Novo: Usa uma cor de destaque diferente (Azul) para o ícone. OU: #004d40; se quiser manter o verde */
+  color: #007bff;
   font-size: 1.4rem;
 }
 
 .form-row {
   display: flex;
-  gap: 25px; /* Aumenta um pouco o espaçamento entre colunas */
+  gap: 25px;
   align-items: flex-end;
 }
 
@@ -52,17 +106,17 @@
 .form-group label {
   display: block;
   font-weight: 600;
-  margin-bottom: 6px; /* Reduz margem para aproximar do input */
-  color: #495057; /* Alterado: Cinza escuro para melhor legibilidade */
-  font-size: 0.95em; /* Aumenta um pouco a fonte do label */
+  margin-bottom: 6px;
+  color: #495057;
+  font-size: 0.95em;
 }
 
 .form-group input,
 .form-group select {
   width: 100%;
-  padding: 12px 14px; /* Ajuste o padding para harmonizar */
-  border: 1px solid #ced4da; /* Borda mais neutra */
-  border-radius: 6px; /* Borda levemente menor */
+  padding: 12px 14px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
   box-sizing: border-box;
   background-color: #ffffff;
   color: #212529;
@@ -73,14 +127,14 @@
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #004d40; /* Mantém o verde principal no foco */
-  box-shadow: 0 0 0 4px rgba(0, 77, 64, 0.15); /* Sombra do foco mais leve */
+  border-color: #004d40;
+  box-shadow: 0 0 0 4px rgba(0, 77, 64, 0.15);
 }
 
-/* Estilo para campos inválidos, dando um feedback visual claro */
+/* Estilo para campos inválidos */
 .form-group input.ng-invalid.ng-touched,
 .form-group select.ng-invalid.ng-touched {
-    border-color: #dc3545; /* Vermelho padrão para erro */
+    border-color: #dc3545;
 }
 
 .form-group-button {
@@ -90,16 +144,16 @@
 
 .add-user-btn {
   width: 100%;
-  padding: 12px 15px; /* Ajuste o padding para harmonizar com os inputs */
-  height: 44px; /* Garante a mesma altura dos inputs para alinhamento */
-  background-color: #004d40; /* COR PRINCIPAL: Verde forte */
+  padding: 12px 15px;
+  height: 44px;
+  background-color: #004d40;
   color: #ffffff;
   border: none;
   border-radius: 6px;
   font-size: 1em;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s, box-shadow 0.3s; /* Adiciona transição para sombra */
+  transition: background-color 0.3s, box-shadow 0.3s;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -107,13 +161,13 @@
 }
 
 .add-user-btn:hover {
-  background-color: #00332b; /* Tom mais escuro para hover */
-  box-shadow: 0 4px 10px rgba(0, 77, 64, 0.3); /* Sombra sutil no hover */
-  transform: none; /* Remove a translação no hover para um estilo mais 'flat' */
+  background-color: #00332b;
+  box-shadow: 0 4px 10px rgba(0, 77, 64, 0.3);
+  transform: none;
 }
 
 .add-user-btn:disabled {
-  background-color: #ced4da; /* Cinza neutro para desabilitado */
+  background-color: #ced4da;
   color: #6c757d;
   cursor: not-allowed;
   transform: none;
@@ -121,23 +175,23 @@
 }
 
 .validation-message {
-  color: #dc3545; /* Vermelho de erro padrão */
-  font-size: 0.8em; /* Fonte um pouco menor para validação */
-  margin-top: 4px; /* Margem ajustada */
+  color: #dc3545;
+  font-size: 0.8em;
+  margin-top: 4px;
 }
 
 .status-message {
   padding: 12px;
-  border-radius: 6px; /* Ajustado para harmonizar */
+  border-radius: 6px;
   margin-top: 20px;
   text-align: center;
   font-weight: 600;
-  border: 1px solid transparent; /* Adiciona borda transparente */
+  border: 1px solid transparent;
 }
 
 .status-message.success {
   background-color: #d4edda;
-  color: #004d40; /* Cor do texto de sucesso com o verde principal */
+  color: #004d40;
   border-color: #c3e6cb;
 }
 
@@ -152,9 +206,9 @@
 /* ============================================= */
 
 .access-info-card {
-    max-width: 800px; /* Alinha com a largura do card de formulário */
+    max-width: 800px;
     width: 100%;
-    margin: 30px auto 0 auto; /* Margem superior para separar do formulário */
+    margin: 30px auto 0 auto;
     background-color: #ffffff;
     padding: 25px 30px;
     border-radius: 12px;
@@ -176,7 +230,7 @@
 
 .access-info-card h4 i {
     margin-right: 10px;
-    color: #007bff; /* Azul principal */
+    color: #007bff;
 }
 
 .access-table-container {
@@ -191,7 +245,7 @@
 }
 
 .access-info-card th {
-    background-color: #007bff; /* Fundo escuro conforme o exemplo visual */
+    background-color: #007bff;
     color: #ffffff;
     padding: 12px 15px;
     font-weight: 600;
@@ -200,16 +254,81 @@
 
 .access-info-card td {
     padding: 12px 15px;
-    border: 1px solid #ced4da; /* Bordas suaves */
+    border: 1px solid #ced4da;
     color: #000000;
     line-height: 1.4;
 }
 
 .access-info-card tbody tr:nth-child(even) {
-    background-color: #f8f9fa; /* Zebrada suave para melhor leitura */
+    background-color: #f8f9fa;
 }
 
+/* ============================================= */
+/* --- ESTILOS PARA VISUALIZAR COLABORADORES (NOVA ABA) --- */
+/* ============================================= */
+.card-viewusers {
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+}
 
+/* Replicando o estilo de tabela do gerenciamento */
+.table-container {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  overflow-x: auto;
+}
+
+.table-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-container th,
+.table-container td {
+  padding: 1.25rem 1.5rem;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: middle;
+}
+
+.table-container th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #2c3e50;
+  white-space: nowrap;
+}
+
+.table-container tr:hover {
+  background-color: #f8f9fa;
+}
+
+.no-data {
+  text-align: center;
+  padding: 2rem;
+  color: #95a5a6;
+  font-style: italic;
+}
+
+.badge-acesso {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-gerente {
+  background-color: #d5ebf1;
+  color: #007aff;
+}
+
+.badge-funcionario {
+  background-color: #eaf7ed;
+  color: #28a745;
+}
 
 /* ============================================= */
 /* --- MEDIA QUERIES (RESPONSIVIDADE) --- */
@@ -218,12 +337,12 @@
 /* Telas Pequenas (Mobile) */
 @media (max-width: 768px) {
   .main-content {
-    padding: 1.5rem 1rem; /* Ajuste para mobile */
-    margin-left: 80px; /* Corrige sobreposição do menu recolhido */
+    padding: 1.5rem 1rem;
+    margin-left: 80px;
   }
   .card-adduser {
     padding: 20px;
-    margin: 0; /* Ocupa a largura total no mobile */
+    margin: 0;
   }
   .form-row {
     flex-direction: column;
@@ -231,14 +350,21 @@
     align-items: stretch;
   }
   .form-group-button {
-    margin-bottom: 0; /* Remove margem extra no mobile */
+    margin-bottom: 0;
+  }
+  .main-nav {
+    max-width: 100%;
+  }
+  .access-info-card {
+      margin: 20px 0 0 0;
+      padding: 20px;
   }
 }
 
 /* Telas Médias (Tablet) - Ajuste para o menu RECOLHIDO */
 @media (min-width: 769px) and (max-width: 992px) {
     .main-content {
-        margin-left: 80px; /* Espaço para o menu de ícones recolhido */
+        margin-left: 80px;
     }
 }
 
@@ -247,14 +373,6 @@
   .main-content {
       margin-left: 250px;
   }
-}
-
-/* Responsividade para o novo card de tabela de acessos */
-@media (max-width: 768px) {
-    .access-info-card {
-        margin: 20px 0 0 0;
-        padding: 20px;
-    }
 }
 
 /* Estilos para a seleção de propriedades */

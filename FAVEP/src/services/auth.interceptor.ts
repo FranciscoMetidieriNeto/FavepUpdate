@@ -13,6 +13,7 @@ import { AuthService } from './auth.service'; // Importamos o AuthService
  */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   
+  
   // Injetar os serviços que precisamos (AuthService e Router)
   const authService = inject(AuthService);
   const router = inject(Router);
