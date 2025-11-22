@@ -1,6 +1,8 @@
-/* ESTILOS PADRONIZADOS PARA TELAS DE CONTEÚDO PRINCIPAL */
+/* ==========================================================================
+   1. ESTILOS GERAIS DE LAYOUT (Mantido do Novo - Melhor Responsividade)
+   ========================================================================== */
 .main-content {
-  padding: 2.5rem; /* Aumenta um pouco o padding */
+  padding: 2.5rem;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -8,42 +10,50 @@
   transition: margin-left 0.3s ease-in-out;
 }
 
-/* --- CABEÇALHO E NAVEGAÇÃO INTERNA (ABAS) --- */
+/* Ajuste responsivo do menu lateral */
+@media (max-width: 768px) {
+  .main-content { margin-left: 0; padding: 1rem; }
+}
+@media (min-width: 769px) and (max-width: 992px) {
+  .main-content { margin-left: 80px; }
+}
+@media (min-width: 993px) {
+  .main-content { margin-left: 250px; }
+}
+
+/* ==========================================================================
+   2. CABEÇALHO E NAVEGAÇÃO (ABAS)
+   Mantido o estilo novo (arredondado), pois é global.
+   Se quiser as abas antigas, me avise que reverto isso também.
+   ========================================================================== */
 .content-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 1rem;
 }
 
 .main-nav {
   display: flex;
   background-color: white;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-  border-radius: 8px;
-  overflow-x: auto;
-  white-space: nowrap;
-  flex-grow: 1; /* Faz as abas ocuparem o espaço */
-  max-width: 800px; /* Limita a largura para alinhar com o card */
-  margin: 0 auto;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  border-radius: 50px;
+  padding: 5px;
+  gap: 5px;
+  overflow-x: auto; /* Garante que não quebre em telas pequenas */
 }
 
 .main-nav button {
-  flex: 1;
-  min-width: 120px;
-  padding: 1rem;
+  padding: 12px 24px;
   border: none;
-  background: none;
-  cursor: pointer;
+  background: transparent;
+  border-radius: 40px;
+  color: #6c757d;
+  font-weight: 600;
   font-size: 0.95rem;
-  font-weight: 500;
-  color: #7f8c8d;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex; align-items: center; gap: 8px;
+  white-space: nowrap;
 }
 
 .main-nav button:hover {
@@ -52,17 +62,15 @@
 }
 
 .main-nav button.active {
-  color: #007aff; /* Azul para destaque da aba ativa */
-  border-bottom: 3px solid #007aff;
-  font-weight: 600;
-  background-color: #d5ebf1;
+  background-color: #007bff;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
 }
 
-.main-nav button i {
-  font-size: 1.1rem;
-}
-
-/* --- ESTILOS DO CARD DE ADICIONAR (aba: adicionar) --- */
+/* ==========================================================================
+   3. ÁREA DE CONVITE / ADICIONAR (REVERTIDO PARA O ORIGINAL)
+   Aqui está exatamente como era antes (Botão Verde, Layout Específico)
+   ========================================================================== */
 .card-adduser {
   max-width: 800px;
   width: 100%;
@@ -92,15 +100,18 @@
   font-size: 1.4rem;
 }
 
+/* Layout do Formulário Original */
 .form-row {
   display: flex;
   gap: 25px;
-  align-items: flex-end;
+  align-items: flex-end; /* Alinha o botão na base dos inputs */
+  margin-bottom: 0; /* Resetando margens genéricas */
 }
 
 .form-group {
   margin-bottom: 20px;
   flex: 1;
+  text-align: left;
 }
 
 .form-group label {
@@ -127,14 +138,14 @@
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #004d40;
+  border-color: #004d40; /* Verde escuro do foco original */
   box-shadow: 0 0 0 4px rgba(0, 77, 64, 0.15);
 }
 
 /* Estilo para campos inválidos */
 .form-group input.ng-invalid.ng-touched,
 .form-group select.ng-invalid.ng-touched {
-    border-color: #dc3545;
+   border-color: #dc3545;
 }
 
 .form-group-button {
@@ -142,11 +153,12 @@
   margin-bottom: 20px;
 }
 
+/* Botão VERDE Original */
 .add-user-btn {
   width: 100%;
   padding: 12px 15px;
   height: 44px;
-  background-color: #004d40;
+  background-color: #004d40; /* Verde Original */
   color: #ffffff;
   border: none;
   border-radius: 6px;
@@ -174,6 +186,7 @@
   box-shadow: none;
 }
 
+/* Mensagens de status (Original) */
 .validation-message {
   color: #dc3545;
   font-size: 0.8em;
@@ -201,10 +214,54 @@
   border-color: #f5c6cb;
 }
 
-/* ============================================= */
-/* --- ESTILOS PARA O CARD DE INFORMAÇÃO DE ACESSO --- */
-/* ============================================= */
+/* Checkboxes de Propriedades (Estilo Original para a aba Adicionar) */
+.properties-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
 
+.property-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    transition: all 0.2s;
+}
+
+.property-checkbox:hover {
+    border-color: #4CAF50; /* Verde ao hover */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.property-checkbox input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #4CAF50;
+}
+
+.section-label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 0.95rem;
+}
+
+.full-width {
+    width: 100%;
+    flex: 0 0 100%;
+}
+
+/* CARD DE INFORMAÇÃO DE ACESSO (ORIGINAL) */
 .access-info-card {
     max-width: 800px;
     width: 100%;
@@ -228,118 +285,254 @@
     align-items: center;
 }
 
-.access-info-card h4 i {
-    margin-right: 10px;
-    color: #007bff;
-}
+.access-info-card h4 i { margin-right: 10px; color: #007bff; }
+.access-table-container { overflow-x: auto; }
+.access-info-card table { width: 100%; border-collapse: collapse; font-size: 0.95em; text-align: left; }
+.access-info-card th { background-color: #007bff; color: #ffffff; padding: 12px 15px; font-weight: 600; border: 1px solid #ced4da; }
+.access-info-card td { padding: 12px 15px; border: 1px solid #ced4da; color: #000000; line-height: 1.4; }
+.access-info-card tbody tr:nth-child(even) { background-color: #f8f9fa; }
 
-.access-table-container {
-    overflow-x: auto;
-}
 
-.access-info-card table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.95em;
-    text-align: left;
-}
-
-.access-info-card th {
-    background-color: #007bff;
-    color: #ffffff;
-    padding: 12px 15px;
-    font-weight: 600;
-    border: 1px solid #ced4da;
-}
-
-.access-info-card td {
-    padding: 12px 15px;
-    border: 1px solid #ced4da;
-    color: #000000;
-    line-height: 1.4;
-}
-
-.access-info-card tbody tr:nth-child(even) {
-    background-color: #f8f9fa;
-}
-
-/* ============================================= */
-/* --- ESTILOS PARA VISUALIZAR COLABORADORES (NOVA ABA) --- */
-/* ============================================= */
+/* ==========================================================================
+   4. ESTILOS DA TABELA DE COLABORADORES (NOVA / MODIFICADA)
+   Mantendo o design limpo para a aba "Visualizar"
+   ========================================================================== */
 .card-viewusers {
-  max-width: 800px;
+  max-width: 1000px; /* Mais largo para a tabela */
   width: 100%;
   margin: 0 auto;
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+  border: 1px solid rgba(0,0,0,0.02);
 }
 
-/* Replicando o estilo de tabela do gerenciamento */
+.card-viewusers h4 {
+    color: #2c3e50;
+    font-size: 1.4rem;
+    margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 2px solid #f0f2f5;
+    padding-bottom: 15px;
+}
+
 .table-container {
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
   overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
 }
 
 .table-container table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 600px;
 }
 
-.table-container th,
-.table-container td {
-  padding: 1.25rem 1.5rem;
-  text-align: left;
-  border-bottom: 1px solid #e2e8f0;
-  vertical-align: middle;
-}
-
-.table-container th {
-  background-color: #f8f9fa;
+.table-container thead th {
+  background-color: #f8fafc;
+  color: #4a5568;
   font-weight: 600;
-  color: #2c3e50;
-  white-space: nowrap;
+  padding: 16px;
+  text-align: left;
+  border-bottom: 2px solid #e2e8f0;
 }
 
-.table-container tr:hover {
-  background-color: #f8f9fa;
+.table-container tbody tr {
+  border-bottom: 1px solid #edf2f7;
+  transition: background-color 0.2s;
 }
+.table-container tbody tr:last-child { border-bottom: none; }
+.table-container tbody tr.clickable-row { cursor: pointer; }
+.table-container tbody tr.clickable-row:hover { background-color: #f0f7ff; }
 
-.no-data {
-  text-align: center;
-  padding: 2rem;
-  color: #95a5a6;
-  font-style: italic;
+.table-container td { padding: 16px; vertical-align: middle; color: #2d3748; }
+
+.user-info-cell { display: flex; align-items: center; gap: 12px; }
+
+.avatar-small {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background-color: #007bff;
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: bold; font-size: 1.1rem;
+  overflow: hidden;
 }
+.avatar-small img { width: 100%; height: 100%; object-fit: cover; }
+
+.user-details { display: flex; flex-direction: column; }
+.user-name { font-weight: 600; font-size: 0.95rem; }
+.user-email { font-size: 0.85rem; color: #718096; }
 
 .badge-acesso {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   display: inline-block;
-  padding: 0.35rem 0.75rem;
-  border-radius: 50px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  white-space: nowrap;
+}
+.badge-gerente { background-color: #e3f2fd; color: #1976d2; border: 1px solid #bbdefb; }
+.badge-funcionario { background-color: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+
+.props-summary {
+  display: inline-block; max-width: 250px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  color: #4a5568; font-size: 0.9rem;
 }
 
-.badge-gerente {
-  background-color: #d5ebf1;
-  color: #007aff;
+.btn-icon {
+  background: none; border: none; color: #cbd5e0;
+  cursor: pointer; font-size: 1.1rem; transition: color 0.2s;
+}
+tr:hover .btn-icon { color: #007bff; }
+.no-data { text-align: center; padding: 3rem; color: #a0aec0; font-style: italic; }
+
+
+/* ==========================================================================
+   5. ESTILOS DO MODAL (NOVO / MODIFICADO)
+   Mantido o modal centralizado e moderno
+   ========================================================================== */
+.modal-backdrop {
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex; justify-content: center; align-items: center;
+  z-index: 2000;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease-out;
 }
 
-.badge-funcionario {
-  background-color: #eaf7ed;
-  color: #28a745;
+.modal-content {
+  background: white;
+  border-radius: 20px;
+  width: 90%; max-width: 600px; max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+  animation: slideUp 0.3s ease-out;
+  display: flex; flex-direction: column;
 }
 
-/* ============================================= */
-/* --- MEDIA QUERIES (RESPONSIVIDADE) --- */
-/* ============================================= */
+.modal-header {
+  padding: 20px 30px;
+  border-bottom: 1px solid #edf2f7;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.modal-header h3 { margin: 0; color: #2d3748; font-size: 1.2rem; }
 
-/* Telas Pequenas (Mobile) */
+.close-btn {
+  background: none; border: none; font-size: 2rem; color: #a0aec0; cursor: pointer; line-height: 1;
+}
+.close-btn:hover { color: #e53e3e; }
+
+.modal-body {
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Perfil no Modal */
+.user-profile-header {
+  display: flex; flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.avatar-large {
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  background-color: #007bff;
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3rem; font-weight: bold;
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+}
+.avatar-large img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+
+.profile-info h2 { margin: 0; color: #2d3748; font-size: 1.5rem; }
+.profile-info p {
+  margin: 5px 0; color: #718096;
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px;
+}
+
+.divider { border: 0; height: 1px; background: #edf2f7; margin: 20px 0; width: 100%; }
+
+.edit-toggle-btn {
+  background: white; border: 1px solid #cbd5e0; color: #4a5568;
+  padding: 8px 16px; border-radius: 20px; cursor: pointer;
+  font-size: 0.9rem; transition: all 0.2s;
+  display: flex; align-items: center; gap: 8px; margin-top: 10px;
+}
+.edit-toggle-btn:hover { border-color: #007bff; color: #007bff; background: #f0f7ff; }
+
+/* Área de Edição no Modal */
+.edit-section {
+  width: 100%;
+  display: flex; flex-direction: column;
+  gap: 20px;
+  align-items: center;
+}
+
+.edit-section .form-group {
+  align-items: center;
+  text-align: center;
+  width: 100%;
+}
+
+.modal-select {
+  width: 100%; max-width: 300px;
+  padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem;
+  text-align: center;
+}
+
+/* Visualização de Tags */
+.props-list-view {
+  display: flex; flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.prop-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: #f0f7ff; color: #0056b3;
+  padding: 5px 10px; border-radius: 15px;
+  font-size: 0.85rem; font-weight: 500;
+  border: 1px solid #cce5ff;
+}
+
+.modal-footer {
+  padding: 20px 30px;
+  background-color: #f8fafc;
+  border-top: 1px solid #edf2f7;
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;
+}
+
+.btn-cancel {
+  padding: 10px 20px; background: transparent; border: 1px solid #cbd5e0; border-radius: 8px;
+  color: #4a5568; font-weight: 600; cursor: pointer;
+}
+
+.btn-save {
+  background: #007bff; padding: 10px 20px; border: none; border-radius: 8px;
+  color: white; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(0, 123, 255, 0.2);
+}
+.btn-save:hover { background: #0056b3; }
+
+/* Animações do Modal */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+/* MEDIA QUERIES ORIGINAIS PARA O FORMULÁRIO */
 @media (max-width: 768px) {
-  .main-content {
-    padding: 1.5rem 1rem;
-    margin-left: 80px;
-  }
   .card-adduser {
     padding: 20px;
     margin: 0;
@@ -359,75 +552,4 @@
       margin: 20px 0 0 0;
       padding: 20px;
   }
-}
-
-/* Telas Médias (Tablet) - Ajuste para o menu RECOLHIDO */
-@media (min-width: 769px) and (max-width: 992px) {
-    .main-content {
-        margin-left: 80px;
-    }
-}
-
-/* Telas Médias/Grandes (Desktop) - Ajuste para o menu ABERTO */
-@media (min-width: 993px) {
-  .main-content {
-      margin-left: 250px;
-  }
-}
-
-/* Estilos para a seleção de propriedades */
-.full-width {
-    width: 100%;
-    flex: 0 0 100%;
-}
-
-.section-label {
-    display: block;
-    margin-bottom: 10px;
-    font-weight: 600;
-    color: #2c3e50;
-    font-size: 0.95rem;
-}
-
-.properties-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 10px;
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-}
-
-.property-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: white;
-    padding: 8px 12px;
-    border-radius: 6px;
-    border: 1px solid #dee2e6;
-    transition: all 0.2s;
-}
-
-.property-checkbox:hover {
-    border-color: #4CAF50;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.property-checkbox input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    cursor: pointer;
-    accent-color: #4CAF50;
-}
-
-.property-checkbox label {
-    margin: 0;
-    font-size: 0.9rem;
-    cursor: pointer;
-    color: #333;
-    display: flex;
-    flex-direction: column;
-    line-height: 1.2;
 }

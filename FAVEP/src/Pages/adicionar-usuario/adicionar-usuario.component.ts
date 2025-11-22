@@ -1,20 +1,13 @@
-// adicionar-usuario.component.ts (Removendo simulação e refatorando loadSubUsers)
-
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { PropriedadeService } from '../../services/propriedade.service';
 import { Router, RouterLink } from '@angular/router';
-import { Usuario, Propriedade } from '../../models/api.models'; 
-import { Subscription, of } from 'rxjs'; // Adicionando 'of' para a simulação
+import { Usuario, Propriedade } from '../../models/api.models';
+import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { MenuCentralComponent } from "../menu-central/menu-central.component";
 import { MenuLateralComponent } from "../menu-lateral/menu-lateral.component";
-
-// --- NOVO MODELO (Simplificado) ---
-interface SubUsuario extends Usuario {
-  propriedadesAcessiveis?: Propriedade[];
-}
 
 @Component({
   selector: 'app-adicionar-usuario',
@@ -28,20 +21,32 @@ export class AdicionarUsuarioComponent implements OnInit, OnDestroy {
 
   // --- CONTROLE DE ABAS ---
   abaAtiva: 'adicionar' | 'visualizar' = 'adicionar';
-  // --- FIM CONTROLE DE ABAS ---
 
+  // --- DADOS DO FORMULÁRIO (ADICIONAR) ---
   newUser = {
     email: '',
     accessLevel: ''
   };
-
-  availableProperties: Propriedade[] = [];
-  selectedProperties: { [id: string]: boolean } = {}; 
-
   statusMessage: string = '';
-  
-  subUsers: SubUsuario[] = [];
-  isLoadingUsers: boolean = false; // Novo: Para loading da tabela
+
+  // --- PROPRIEDADES DISPONÍVEIS (ADMIN) ---
+  availableProperties: Propriedade[] = [];
+
+  // Controle de seleção na aba "Adicionar"
+  selectedProperties: { [id: string]: boolean } = {};
+
+  // --- LISTAGEM DE COLABORADORES ---
+  subUsers: Usuario[] = [];
+  isLoadingUsers: boolean = false;
+
+  // --- CONTROLE DO MODAL DE EDIÇÃO/VISUALIZAÇÃO ---
+  showModal: boolean = false;
+  isEditingMode: boolean = false;
+  userToEdit: Usuario | null = null;
+
+  // Controle de seleção dentro do Modal (Edição)
+  selectedPropertiesEdit: { [id: string]: boolean } = {};
+  editedRole: string = '';
 
   constructor(
     private router: Router,
@@ -51,9 +56,10 @@ export class AdicionarUsuarioComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.userSubscription = this.authService.currentUser.subscribe((user: Usuario | null) => {
-      // Lógica futura se necessário
+      // Se necessário, lógica de redirecionamento ou verificação de permissão aqui
     });
 
+    // Carrega as propriedades do Admin (necessário tanto para adicionar quanto para editar)
     this.loadProperties();
   }
 
@@ -61,7 +67,7 @@ export class AdicionarUsuarioComponent implements OnInit, OnDestroy {
     this.userSubscription?.unsubscribe();
   }
 
-  // --- MÉTODOS DE CONTROLE ---
+  // --- ALTERNÂNCIA DE ABAS ---
   selecionarAba(aba: 'adicionar' | 'visualizar'): void {
     this.abaAtiva = aba;
     if (aba === 'visualizar') {
@@ -69,56 +75,14 @@ export class AdicionarUsuarioComponent implements OnInit, OnDestroy {
     }
   }
 
-  loadSubUsers(): void {
-    this.isLoadingUsers = true;
-    
-    // --- LÓGICA DE SIMULAÇÃO (DEVE SER IMPLEMENTADA NO AUTHSERVICE) ---
-    // Simula que os dados do mock são buscados do serviço, AGORA REQUERENDO
-    // APENAS AS PROPRIEDADES JÁ CARREGADAS para popular o mock.
-    
-    // Este é o array de propriedades carregadas que você usou na simulação anterior.
-    const props = this.availableProperties; 
-
-    const mockSubUsers = [
-      { id: 'sub1', nome: 'Gerente Operacional', email: 'gerente.op@favep.com', cargo: 'GERENTE', telefone: '00000000000', senha: 'temp', emailVerified: true, profileCompleted: true, 
-        propriedadesAcessiveis: [props[0]] 
-      },
-      { id: 'sub2', nome: 'Funcionario Campo', email: 'func.campo@favep.com', cargo: 'FUNCIONARIO', telefone: '11111111111', senha: 'temp', emailVerified: true, profileCompleted: true, 
-        propriedadesAcessiveis: [props[1], props[2]] 
-      }
-    ] as SubUsuario[];
-
-    // Simula a chamada Http e o delay
-    of(mockSubUsers)
-        .subscribe(users => {
-            this.subUsers = users.filter(user => user.propriedadesAcessiveis?.length);
-            this.isLoadingUsers = false;
-        });
-    // --- FIM DA LÓGICA DE SIMULAÇÃO ---
-  }
-
-  getPropriedadesAcessiveis(user: SubUsuario): string {
-    const props = user.propriedadesAcessiveis;
-    if (!props || props.length === 0) {
-      return 'Nenhuma propriedade';
-    }
-    // Note: Garantimos que props[i] existe antes de acessar .nomepropriedade
-    return props.map(p => p ? p.nomepropriedade : 'N/A').join(', ');
-  }
-
-  trackById(index: number, item: { id: any }): any {
-    return item.id;
-  }
-  // --- FIM MÉTODOS DE CONTROLE ---
-
-
+  // --- CARGA DE DADOS ---
   loadProperties(): void {
     this.propriedadeService.getPropriedades().subscribe({
       next: (props) => {
         this.availableProperties = props;
-        // Se as propriedades estiverem carregadas e a aba for 'visualizar', carrega os usuários.
+        // Se já estiver na aba visualizar, garante que os nomes das propriedades apareçam corretamente
         if (this.abaAtiva === 'visualizar') {
-            this.loadSubUsers();
+          this.loadSubUsers();
         }
       },
       error: (err) => {
@@ -127,10 +91,27 @@ export class AdicionarUsuarioComponent implements OnInit, OnDestroy {
     });
   }
 
+  loadSubUsers(): void {
+    this.isLoadingUsers = true;
+    this.authService.getSubUsers().subscribe({
+      next: (users) => {
+        this.subUsers = users;
+        this.isLoadingUsers = false;
+      },
+      error: (err) => {
+        console.error('Erro ao buscar colaboradores:', err);
+        this.statusMessage = 'Erro ao carregar lista de colaboradores.';
+        this.isLoadingUsers = false;
+      }
+    });
+  }
+
+  // --- AUXILIARES DE SELEÇÃO (ADICIONAR) ---
   getSelectedPropertyIds(): string[] {
     return Object.keys(this.selectedProperties).filter(id => this.selectedProperties[id]);
   }
 
+  // --- FUNÇÃO ADICIONAR USUÁRIO ---
   addUser(form: NgForm): void {
     if (form.valid) {
       const selectedIds = this.getSelectedPropertyIds();
@@ -142,7 +123,8 @@ export class AdicionarUsuarioComponent implements OnInit, OnDestroy {
             this.statusMessage = res.message || 'Usuário convidado com sucesso! A senha foi enviada por e-mail.';
             form.resetForm();
             this.selectedProperties = {};
-            this.loadSubUsers(); // Atualiza a lista
+            // Se quiser atualizar a lista imediatamente, pode chamar:
+            // this.loadSubUsers();
           },
           error: (err) => {
             console.error('Erro ao adicionar usuário:', err);
@@ -152,5 +134,81 @@ export class AdicionarUsuarioComponent implements OnInit, OnDestroy {
     } else {
       this.statusMessage = 'Erro: Por favor, preencha todos os campos corretamente.';
     }
+  }
+
+  // --- VISUALIZAÇÃO NA TABELA ---
+  getPropriedadesAcessiveis(user: Usuario): string {
+    if (!user.propriedadesAcessiveis || user.propriedadesAcessiveis.length === 0) {
+      return 'Nenhuma';
+    }
+    return user.propriedadesAcessiveis.map(p => p.nomepropriedade).join(', ');
+  }
+
+  // --- LÓGICA DO MODAL ---
+
+  openModal(user: Usuario): void {
+    this.userToEdit = user;
+    this.showModal = true;
+    this.isEditingMode = false; // Começa sempre em modo visualização
+    this.statusMessage = ''; // Limpa mensagens antigas
+
+    // Prepara os dados caso o usuário queira editar
+    this.editedRole = user.cargo || '';
+    this.selectedPropertiesEdit = {};
+
+    // Marca as checkboxes baseadas no que o usuário JÁ TEM
+    if (user.propriedadesAcessiveis) {
+      user.propriedadesAcessiveis.forEach(prop => {
+        this.selectedPropertiesEdit[prop.id] = true;
+      });
+    }
+  }
+
+  closeModal(): void {
+    this.showModal = false;
+    this.userToEdit = null;
+    this.isEditingMode = false;
+  }
+
+  toggleEditMode(): void {
+    this.isEditingMode = !this.isEditingMode;
+  }
+
+  saveUserChanges(): void {
+    if (!this.userToEdit || !this.userToEdit.id) return;
+
+    // Filtra os IDs marcados no modal
+    const selectedIds = Object.keys(this.selectedPropertiesEdit).filter(id => this.selectedPropertiesEdit[id]);
+
+    this.authService.updateSubUser(this.userToEdit.id, {
+      cargo: this.editedRole,
+      propriedades: selectedIds
+    }).subscribe({
+      next: (updatedUser) => {
+        console.log('Usuário atualizado:', updatedUser);
+
+        // Atualiza a lista local para refletir as mudanças sem precisar recarregar tudo do zero
+        const index = this.subUsers.findIndex(u => u.id === updatedUser.id);
+        if (index !== -1) {
+          this.subUsers[index] = updatedUser;
+        }
+
+        this.closeModal();
+        this.statusMessage = 'Colaborador atualizado com sucesso!';
+
+        // Remove a mensagem de sucesso após 3 segundos
+        setTimeout(() => { this.statusMessage = ''; }, 3000);
+      },
+      error: (err) => {
+        console.error('Erro ao atualizar colaborador:', err);
+        // Exibe erro (você pode querer adicionar um campo de erro específico no modal)
+        alert(err.error?.error || 'Erro ao atualizar colaborador.');
+      }
+    });
+  }
+
+  // Helper para o trackBy no ngFor (melhora performance)
+  trackById(index: number, item: Usuario): string {
+    return item.id;
   }
 }
