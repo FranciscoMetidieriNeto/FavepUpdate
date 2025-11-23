@@ -136,5 +136,3 @@ Navegue até a pasta `ServerBackup/` e adicione as credenciais no arquivo `.env`
 MERCADOPAGO_PUBLIC_KEY="sua-public-key"
 MERCADOPAGO_ACCESS_TOKEN="seu-acess-token"
 MERCADOPAGO_NOTIFICATION_URL="url-gerada-pelo-ngok/api/mercado-pago/webhook"
-
-# URL do ngrok (necessária para definir o callback de retorno)
