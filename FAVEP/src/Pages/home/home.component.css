@@ -151,6 +151,90 @@
     background-color: #ffffff;
 }
 
+/* Container para o carrossel (Substitui .imagem) */
+.carousel-container {
+    position: relative; 
+    flex: 1 1 500px; 
+    max-width: 650px; 
+    overflow: hidden; 
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border: 2px solid #e0e0e0; /* O contorno da imagem vai para o container */
+}
+
+.carousel-slide {
+  width: 100%;
+}
+
+.carousel-img {
+    max-width: 100%;
+    width: 100%; 
+    height: auto;
+    display: block;
+    border-radius: 10px; /* Arredondamento para encaixar no container */
+    object-fit: cover; 
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* Botões de Navegação do Carrossel */
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.4);
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    z-index: 10;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+}
+
+.carousel-btn:hover {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.carousel-btn.prev {
+    left: 10px;
+}
+
+.carousel-btn.next {
+    right: 10px;
+}
+
+/* Indicadores do Carrossel */
+.carousel-indicators {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+}
+
+.carousel-indicators span {
+    width: 10px;
+    height: 10px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+    border: 1px solid rgba(0, 0, 0, 0.2); 
+}
+
+.carousel-indicators span.active {
+    background-color: #007aff; 
+    transform: scale(1.2);
+    border-color: #007aff;
+}
 
 
 .texto, .texto1 {
@@ -194,22 +278,6 @@
     margin: 0;
 }
 
-/* NOVO: Container para a imagem */
-.imagem {
-    /* Garante que o container da imagem ocupe o espaço restante e quebre a linha */
-    flex: 1 1 500px; 
-    max-width: 650px; 
-}
-
-.imagem img {
-    max-width: 100%;
-    /* MODIFICADO: Ocupa 100% do seu container flexível */
-    width: 100%; 
-    height: auto;
-    border: 2px solid #e0e0e0;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-}
 
 /* SEÇÃO DE PARCEIROS NA HOME */
 .parceiros-section {
@@ -277,7 +345,10 @@
 .carousel-track {
     display: flex;
     align-items: center;
-    animation: scroll 25s linear infinite;
+    animation: scroll 20s linear infinite;
+    white-space: nowrap; /* Garante que o track tenha a largura total sem quebras */
+    /* Força o navegador a otimizar a transformação usando a GPU */
+    will-change: transform; 
 }
 
 .carousel img {
@@ -295,8 +366,9 @@
 }
 
 @keyframes scroll {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
+    /* Usando translate3d(x, y, z) para garantir a aceleração de hardware */
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-50%, 0, 0); }
 }
 
 /* RESPONSIVIDADE */
