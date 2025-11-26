@@ -71,7 +71,9 @@
 .card {
     background-color: #ffffff;
     padding: 30px;
-    width: 250px;
+    /* ALTERAÇÃO: Flexibilidade para telas < 300px */
+    width: 100%;
+    max-width: 250px;
     border-radius: 12px;
     text-align: center;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
@@ -79,6 +81,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    /* NOVO: Garante que o padding não aumente a largura total */
+    box-sizing: border-box;
 }
 
 .card:hover {
@@ -135,7 +139,7 @@
     padding: 80px 20px;
     flex-wrap: wrap;
     gap: 40px;
-   
+
     /* Adicionar largura máxima para limitar o tamanho do card */
     max-width: 1200px; /* Escolha um valor adequado */
     /* Centralizar o bloco (card) na horizontal */
@@ -153,10 +157,10 @@
 
 /* Container para o carrossel (Substitui .imagem) */
 .carousel-container {
-    position: relative; 
-    flex: 1 1 500px; 
-    max-width: 650px; 
-    overflow: hidden; 
+    position: relative;
+    flex: 1 1 500px;
+    max-width: 650px;
+    overflow: hidden;
     border-radius: 12px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
     border: 2px solid #e0e0e0; /* O contorno da imagem vai para o container */
@@ -168,11 +172,11 @@
 
 .carousel-img {
     max-width: 100%;
-    width: 100%; 
+    width: 100%;
     height: auto;
     display: block;
     border-radius: 10px; /* Arredondamento para encaixar no container */
-    object-fit: cover; 
+    object-fit: cover;
     transition: opacity 0.3s ease-in-out;
 }
 
@@ -227,11 +231,11 @@
     border-radius: 50%;
     cursor: pointer;
     transition: background-color 0.3s, transform 0.3s;
-    border: 1px solid rgba(0, 0, 0, 0.2); 
+    border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 .carousel-indicators span.active {
-    background-color: #007aff; 
+    background-color: #007aff;
     transform: scale(1.2);
     border-color: #007aff;
 }
@@ -243,7 +247,7 @@
     font-family: 'Open Sans', sans-serif;
     font-size: 1rem;
     /* NOVO: Garante que o texto tenha prioridade no espaço e quebre corretamente */
-    flex: 1 1 450px; 
+    flex: 1 1 450px;
 }
 
 .texto {
@@ -348,7 +352,7 @@
     animation: scroll 20s linear infinite;
     white-space: nowrap; /* Garante que o track tenha a largura total sem quebras */
     /* Força o navegador a otimizar a transformação usando a GPU */
-    will-change: transform; 
+    will-change: transform;
 }
 
 .carousel img {
@@ -376,25 +380,35 @@
   .servico, .servico1 {
     flex-direction: column;
     gap: 30px;
+    padding: 40px 15px;
+  }
+
+  .painel {
+      padding: 0 15px;
   }
 
   /* NOVO: Centraliza o título quando estiver em coluna */
   .texto h1, .texto1 h1 {
       text-align: center;
   }
-  
+
   /* NOVO: Garante que o texto ocupe a largura total em mobile */
   .texto, .texto1 {
-      max-width: 100%; 
+      max-width: 100%;
   }
-  
+
+  /* ALTERAÇÃO: Garante largura total para o container da imagem */
+  .carousel-container {
+      width: 100%;
+  }
+
   /* NOVO: Centraliza o bloco da lista para melhor visualização em mobile */
   .texto ul, .texto1 ul {
       display: inline-block;
       text-align: left;
       padding-left: 0;
   }
-  
+
   .carousel img {
     max-width: 80px;
     max-height: 40px;
@@ -402,11 +416,33 @@
   }
 }
 
+/* --- NOVO: Breakpoint para telas MUITO PEQUENAS (280px a 480px) --- */
+@media (max-width: 480px) {
+    .overlay {
+        padding: 20px; /* Reduz padding interno drásticamente */
+        width: 100%;
+        max-width: 100%; /* Garante que não ultrapasse a tela */
+        box-sizing: border-box;
+    }
+
+    .services {
+        padding: 30px 10px; /* Reduz padding lateral */
+    }
+
+    .card {
+        padding: 15px; /* Reduz padding interno do card */
+    }
+
+    .servico, .servico1 {
+        padding: 30px 10px; /* Mais compacto */
+    }
+}
+
 /* --- NOVO ESTILO: Botão Voltar ao Topo --- */
 .btn-scroll-top {
     position: fixed;
     /* ALTERADO: Aumenta o valor de bottom para mover o botão para cima */
-    bottom: 120px; 
+    bottom: 120px;
     right: 30px;
     background-color: #007aff; /* Azul para destaque */
     color: white;
